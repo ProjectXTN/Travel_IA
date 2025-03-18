@@ -4,12 +4,16 @@ const cors = require("cors");
 const axios = require("axios");
 
 const app = express();
-app.use(cors());
+app.use(cors({
+    origin: ["http://localhost:3000", "https://travel-ia.onrender.com"],
+    methods: ["GET", "POST"],
+    allowedHeaders: ["Content-Type", "Authorization"]
+}));
 app.use(express.json());
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
 const SITE_URL = process.env.SITE_URL || "https://travel-ia.onrender.com"; 
-const SITE_NAME = process.env.SITE_NAME || "GPT Viagem Inteligente";
+const SITE_NAME = process.env.SITE_NAME || "AI Viagem Inteligente";
 
 app.post("/plan-trip", async (req, res) => {
     const { destination, days, interests } = req.body;
