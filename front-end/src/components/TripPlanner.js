@@ -19,13 +19,14 @@ const TripPlanner = () => {
     e.preventDefault();
     setLoading(true);
 
-    const response = await fetch("http://localhost:5000/plan-trip", {
+    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/plan-trip`, {
       method: "POST",
       headers: {
         "Content-Type": "application/json",
       },
       body: JSON.stringify({ destination, days, interests }),
     });
+    console.log(`${process.env.REACT_APP_BACKEND_URL}/plan-trip`)
 
     const data = await response.json();
     setTripPlan(data.plan);
