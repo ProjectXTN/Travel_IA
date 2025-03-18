@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const app = express();
 app.use(cors({
-    origin: ["http://localhost:3000", "https://travel-ia.onrender.com"],
+    origin: ["http://localhost:3000", "https://travel-ia.onrender.com", "https://travel-ia-2.vercel.app"],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
