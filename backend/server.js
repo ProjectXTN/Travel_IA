@@ -22,7 +22,7 @@ app.post("/plan-trip", async (req, res) => {
 
     try {
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
-            model: "deepseek/deepseek-r1:free", // ID correto do modelo conforme OpenRouter
+            model: "deepseek/deepseek-r1-distill-qwen-32b:free", // ID correto do modelo conforme OpenRouter
             messages: [{ role: "user", content: prompt }],
         }, {
             headers: {
