@@ -5,14 +5,14 @@ const axios = require("axios");
 
 const app = express();
 app.use(cors({
-    origin: ["http://localhost:3000", "https://travel-ia.onrender.com", "https://travel-ia-2.vercel.app"],
+    origin: ["http://localhost:3000", "https://travel-ia-2.vercel.app"],
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
 app.use(express.json());
 
 const OPENROUTER_API_KEY = process.env.OPENROUTER_API_KEY;
-const SITE_URL = process.env.SITE_URL || "https://travel-ia.onrender.com"; 
+const SITE_URL = process.env.SITE_URL || "https://travel-ia-2.onrender.com"; 
 const SITE_NAME = process.env.SITE_NAME || "AI Viagem Inteligente";
 
 app.post("/plan-trip", async (req, res) => {
