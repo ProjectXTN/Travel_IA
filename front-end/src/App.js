@@ -4,7 +4,7 @@ import TripPlanner from "./components/TripPlanner";
 function App() {
   return (
     <div>
-      <h1>Descubra os melhores roteiros de viagem com nossa IA! ✈️✈️</h1>
+      <h1>Descubra os melhores roteiros de viagem com a nossa IA! ✈️✈️</h1>
       <TripPlanner />
     </div>
   );

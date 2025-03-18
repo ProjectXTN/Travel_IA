@@ -12,6 +12,7 @@ const TripPlanner = () => {
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
   const [interests, setInterests] = useState("");
+  const [language, setLanguage] = useState("PT-BR");
   const [tripPlan, setTripPlan] = useState("");
   const [loading, setLoading] = useState(false);
 
@@ -24,9 +25,8 @@ const TripPlanner = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ destination, days, interests }),
+      body: JSON.stringify({ destination, days, interests, language }),
     });
-    console.log(`${process.env.REACT_APP_BACKEND_URL}/plan-trip`)
 
     const data = await response.json();
     setTripPlan(data.plan);
@@ -63,6 +63,14 @@ const TripPlanner = () => {
             onChange={(e) => setInterests(e.target.value)}
             required
           />
+        </div>
+        <div>
+          <Label>Idioma:</Label>
+          <select value={language} onChange={(e) => setLanguage(e.target.value)}>
+            <option value="PT-BR">Português</option>
+            <option value="EN">English</option>
+            <option value="FR">Françes</option>
+          </select>
         </div>
         <Button type="submit" disabled={loading}>
           {loading ? "Gerando plano..." : "Gerar Plano"}
