@@ -69,7 +69,13 @@ const TripPlanner = () => {
       </Form>
 
       {tripPlan && (
-        <PlanContainer dangerouslySetInnerHTML={{ __html: tripPlan.replace(/\n/g, "<br>") }} />
+        <PlanContainer
+          dangerouslySetInnerHTML={{
+            __html: tripPlan
+              .replace(/\n/g, "<br>")
+              .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Google Maps</a>')
+          }}
+        />
       )}
     </Container>
   );
