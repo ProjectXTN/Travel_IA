@@ -5,7 +5,7 @@ const axios = require("axios");
 
 const app = express();
 app.use(cors({
-    origin: ["http://localhost:3000", "https://travel-ia-2.vercel.app"],
+    origin: "*", // Permite todas as origens (para teste) ou liste as URLs específicas
     methods: ["GET", "POST"],
     allowedHeaders: ["Content-Type", "Authorization"]
 }));
