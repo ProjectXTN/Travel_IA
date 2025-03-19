@@ -9,7 +9,7 @@ import {
   PlanContainer
 } from "../style/TripPlannerStyles";
 
-const TripPlanner = () => {
+const TripPlannerFR = () => {
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
   const [interests, setInterests] = useState("");
@@ -26,7 +26,7 @@ const TripPlanner = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ destination, days, interests, language: "PT-BR" }), // Define o idioma fixo
+      body: JSON.stringify({ destination, days, interests, language: "FR" }), // Define o idioma fixo
     });
 
     const data = await response.json();
@@ -36,7 +36,7 @@ const TripPlanner = () => {
 
   return (
     <Container>
-      <h2>Planeje sua Viagem</h2>
+      <h2>Planifiez votre voyage</h2>
 
       {/* Botões para trocar de idioma */}
       <div style={{ marginBottom: "15px" }}>
@@ -46,7 +46,7 @@ const TripPlanner = () => {
 
       <Form onSubmit={handleSubmit}>
         <div>
-          <Label>Destino:</Label>
+          <Label>Destination :</Label>
           <Input
             type="text"
             value={destination}
@@ -55,7 +55,7 @@ const TripPlanner = () => {
           />
         </div>
         <div>
-          <Label>Dias:</Label>
+          <Label>Nombre de jours :</Label>
           <Input
             type="number"
             value={days}
@@ -64,7 +64,7 @@ const TripPlanner = () => {
           />
         </div>
         <div>
-          <Label>Interesses:</Label>
+          <Label>Intérêts :</Label>
           <Input
             type="text"
             value={interests}
@@ -74,7 +74,7 @@ const TripPlanner = () => {
         </div>
 
         <Button type="submit" disabled={loading}>
-          {loading ? "Gerando plano..." : "Gerar Plano"}
+          {loading ? "Génération du plan en cours..." : "Générer un itinéraire"}
         </Button>
       </Form>
 
@@ -91,4 +91,4 @@ const TripPlanner = () => {
   );
 };
 
-export default TripPlanner;
+export default TripPlannerFR;
