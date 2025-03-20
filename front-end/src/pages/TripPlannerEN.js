@@ -9,7 +9,7 @@ import {
   PlanContainer
 } from "../style/TripPlannerStyles";
 
-const TripPlannerFR = () => {
+const TripPlanner = () => {
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
   const [interests, setInterests] = useState("");
@@ -26,7 +26,7 @@ const TripPlannerFR = () => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ destination, days, interests, language: "FR" }), // Define o idioma fixo
+      body: JSON.stringify({ destination, days, interests, language: "EN" }), // Define o idioma fixo
     });
 
     const data = await response.json();
@@ -36,17 +36,18 @@ const TripPlannerFR = () => {
 
   return (
     <Container>
-      <h2>Planifiez votre voyage</h2>
+      <h2>Plan your Trip</h2>
 
       {/* Botões para trocar de idioma */}
       <div style={{ marginBottom: "15px" }}>
         <Button onClick={() => navigate("/pt-br")}>🌎 Português</Button>
         <Button onClick={() => navigate("/fr")}>🇫🇷 Français</Button>
+        <Button onClick={() => navigate("/en")}>🌎 English</Button>
       </div>
 
       <Form onSubmit={handleSubmit}>
         <div>
-          <Label>Destination :</Label>
+          <Label>Destination:</Label>
           <Input
             type="text"
             value={destination}
@@ -55,7 +56,7 @@ const TripPlannerFR = () => {
           />
         </div>
         <div>
-          <Label>Nombre de jours :</Label>
+          <Label>Days:</Label>
           <Input
             type="number"
             value={days}
@@ -64,17 +65,24 @@ const TripPlannerFR = () => {
           />
         </div>
         <div>
-          <Label>Intérêts :</Label>
-          <Input
-            type="text"
+        <Label>Interests:</Label>
+        <select
             value={interests}
             onChange={(e) => setInterests(e.target.value)}
             required
-          />
+        >
+            <option value="Vacation">Vacation</option>
+            <option value="Tourism">Tourism</option>
+            <option value="Cuisine">Cuisine</option>
+            <option value="Adventure">Adventure</option>
+            <option value="Culture">Culture</option>
+            <option value="Beach">Beach</option>
+            <option value="History">History</option>
+        </select>
         </div>
 
         <Button type="submit" disabled={loading}>
-          {loading ? "Génération du plan en cours..." : "Générer un itinéraire"}
+          {loading ? "Generating plan..." : "Generate Plan"}
         </Button>
       </Form>
 
@@ -83,7 +91,13 @@ const TripPlannerFR = () => {
           dangerouslySetInnerHTML={{
             __html: tripPlan
               .replace(/\n/g, "<br>")
-              .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Google Maps</a>')
+              .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
+              .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
+                // Codificando o nome do local para ser usado nas URLs
+                const encodedPlace = encodeURIComponent(place);
+                // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
+                return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Google Maps Address</a>`;
+              })                 
           }}
         />
       )}
@@ -91,4 +105,4 @@ const TripPlannerFR = () => {
   );
 };
 
-export default TripPlannerFR;
+export default TripPlanner;

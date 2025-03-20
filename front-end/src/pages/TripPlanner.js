@@ -42,6 +42,7 @@ const TripPlanner = () => {
       <div style={{ marginBottom: "15px" }}>
         <Button onClick={() => navigate("/pt-br")}>🌎 Português</Button>
         <Button onClick={() => navigate("/fr")}>🇫🇷 Français</Button>
+        <Button onClick={() => navigate("/en")}>🌎 English</Button>
       </div>
 
       <Form onSubmit={handleSubmit}>
@@ -65,13 +66,21 @@ const TripPlanner = () => {
         </div>
         <div>
           <Label>Interesses:</Label>
-          <Input
-            type="text"
+          <select
             value={interests}
             onChange={(e) => setInterests(e.target.value)}
             required
-          />
+          >
+            <option value="Férias">Férias</option>
+            <option value="Turismo">Turismo</option>
+            <option value="Culinária">Culinária</option>
+            <option value="Aventura">Aventura</option>
+            <option value="Cultura">Cultura</option>
+            <option value="Praia">Praia</option>
+            <option value="História">História</option>
+          </select>
         </div>
+
 
         <Button type="submit" disabled={loading}>
           {loading ? "Gerando plano..." : "Gerar Plano"}
@@ -83,7 +92,13 @@ const TripPlanner = () => {
           dangerouslySetInnerHTML={{
             __html: tripPlan
               .replace(/\n/g, "<br>")
-              .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Google Maps</a>')
+              .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
+              .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
+                // Codificando o nome do local para ser usado nas URLs
+                const encodedPlace = encodeURIComponent(place);
+                // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
+                return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>`;
+              })                 
           }}
         />
       )}
