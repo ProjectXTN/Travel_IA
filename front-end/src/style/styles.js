@@ -174,11 +174,14 @@ export const CheckboxLabel = styled.label`
 
 export const ContainerButton = styled.div`
   width: 100%;
-  margin-bottom: 10px;
+  margin: 10px;
   display: flex;
   justify-content: center;
   gap: 10px ;
 
+  @media (max-width: 768px) {
+    margin: 0px;
+  }
 `
 
 export const Button = styled.button`
@@ -218,6 +221,10 @@ export const Button = styled.button`
     100% {
       transform: rotate(360deg);
     }
+  }
+
+  @media (max-width: 768px) {
+    padding: 10px 10px;
   }
 `;
 
