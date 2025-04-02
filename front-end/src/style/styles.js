@@ -125,6 +125,31 @@ export const Select = styled.select`
   border: 1px solid #ccc;
   border-radius: 4px;
   font-size: 16px;
+  min-height: 120px;
+`;
+
+export const CheckboxGroup = styled.div`
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+`;
+
+export const CheckboxLabel = styled.label`
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  background: #f2f2f2;
+  padding: 6px 5px;
+  border-radius: 6px;
+  cursor: pointer;
+  font-size: 14px;
+  user-select: none;
+  flex: 1 1 48%; /* 👈 ocupa 48% da largura, permitindo 2 por linha */
+  box-sizing: border-box;
+
+  input {
+    accent-color: #2b7fff;
+  }
 `;
 
 
@@ -138,15 +163,42 @@ export const ContainerButton = styled.div`
 `
 
 export const Button = styled.button`
-  padding: 10px;
-  background: #007bff;
+  background-color: #2b7fff;
   color: white;
-  font-size: 16px;
+  padding: 10px 20px;
   border: none;
-  border-radius: 4px;
+  border-radius: 6px;
+  font-weight: bold;
   cursor: pointer;
+  font-size: 16px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+
   &:disabled {
-    background: #ccc;
+    background-color: #cccccc;
+    cursor: not-allowed;
+  }
+
+  .loader {
+    border: 2px solid white;
+    border-top: 2px solid #2b7fff;
+    border-radius: 50%;
+    width: 14px;
+    height: 14px;
+    animation: spin 1s linear infinite;
+    background: transparent;
+  }
+
+  @keyframes spin {
+    0% {
+      transform: rotate(0deg);
+    }
+
+    100% {
+      transform: rotate(360deg);
+    }
   }
 `;
 

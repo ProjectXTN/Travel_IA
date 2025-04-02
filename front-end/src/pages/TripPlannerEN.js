@@ -1,5 +1,9 @@
 import React, { useState, useRef } from "react";
-import { useNavigate } from "react-router-dom"; // Para navegação
+import { useNavigate } from "react-router-dom";
+import { useLocation } from "react-router-dom";
+import { getLanguageFromPath } from "../services/languageService";
+import { handlePlanTrip } from "../services/planTripService";
+import InterestCheckbox from "../components/InterestCheckbox";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import {
@@ -11,7 +15,7 @@ import {
   FormRow,
   Label,
   Input,
-  Select,
+  CheckboxGroup,
   ContainerButton,
   Button,
   PlanContainer
@@ -25,37 +29,20 @@ const TripPlanner = () => {
   const [loading, setLoading] = useState(false);
   const planRef = useRef(null);
   const navigate = useNavigate();
+  const location = useLocation();
+  const language = getLanguageFromPath(location.pathname);
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-    setLoading(true);
-
-    try {
-      const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/plan-trip`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({
-          destination,
-          days,
-          interests,
-          language: "PT-BR",
-        }),
-      });
-
-      const data = await response.json();
-      setTripPlan(data.plan);
-      setLoading(false);
-
-      // Scrolling
-      setTimeout(() => {
-        planRef.current?.scrollIntoView({ behavior: "smooth" });
-      }, 100);
-    } catch (error) {
-      console.error("Erro ao gerar plano:", error);
-      setLoading(false);
-    }
+  const handleSubmit = (e) => {
+    handlePlanTrip({
+      destination,
+      days,
+      interests,
+      language,
+      setTripPlan,
+      setLoading,
+      planRef,
+      event: e,
+    });
   };
 
   return (
@@ -67,9 +54,9 @@ const TripPlanner = () => {
 
             {/* Botões para trocar de idioma */}
             <ContainerButton>
-              <Button onClick={() => navigate("/pt-br")}>🌎 Português</Button>
-              <Button onClick={() => navigate("/fr")}>🇫🇷 Français</Button>
-              <Button onClick={() => navigate("/en")}>🌎 English</Button>
+              <Button onClick={() => navigate("/pt-br")} disabled={loading}>🌎 Português</Button>
+              <Button onClick={() => navigate("/fr")} disabled={loading}>🇫🇷 Français</Button>
+              <Button onClick={() => navigate("/en")} disabled={loading} >🌎 English</Button>
             </ContainerButton>
             <ContainerForm>
               <Form onSubmit={handleSubmit}>
@@ -95,24 +82,41 @@ const TripPlanner = () => {
                 </FormRow>
 
                 <FormRow>
-                  <Label>Interests:</Label>
-                  <Select
-                    value={interests}
-                    onChange={(e) => setInterests(e.target.value)}
-                    required
-                  >
-                    <option value="Vacation">Vacation</option>
-                    <option value="Tourism">Tourism</option>
-                    <option value="Cuisine">Cuisine</option>
-                    <option value="Adventure">Adventure</option>
-                    <option value="Culture">Culture</option>
-                    <option value="Beach">Beach</option>
-                    <option value="History">History</option>
-                  </Select>
+                  <Label>Interesses:</Label>
+                  <CheckboxGroup>
+                    {[
+                      "Vacation",
+                      "Tourism",
+                      "Cuisine",
+                      "Adventure",
+                      "Culture",
+                      "Beach",
+                      "History",
+                    ].map((interest) => (
+                      <InterestCheckbox
+                        key={interest}
+                        interest={interest}
+                        checked={interests.includes(interest)}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            setInterests([...interests, interest]);
+                          } else {
+                            setInterests(interests.filter((i) => i !== interest));
+                          }
+                        }}
+                      />
+                    ))}
+                  </CheckboxGroup>
                 </FormRow>
 
                 <Button type="submit" disabled={loading}>
-                  {loading ? "Generating plan..." : "Generate Plan"}
+                  {loading ? (
+                    <>
+                      <span className="loader" /> Generating plan...
+                    </>
+                  ) : (
+                    "Generate Plan"
+                  )}
                 </Button>
               </Form>
             </ContainerForm>
