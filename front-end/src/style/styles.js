@@ -114,9 +114,28 @@ export const Label = styled.label`
 export const Input = styled.input`
   flex: 1;
   padding: 8px;
-  border: 1px solid #ccc;
+  border: 2px solid ${({ error }) => (error ? "rgb(255, 0, 0)" : "#ccc")};
   border-radius: 4px;
   font-size: 16px;
+  outline: none;
+
+  &:focus {
+    border-color: ${({ error }) => (error ? "rgb(255, 0, 0)" : "#2b7fff")};
+  }
+`;
+
+export const InputWrapper = styled.div`
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+`;
+
+export const ErrorMessage = styled.div`
+  color: #fff;
+  font-size: 14px;
+  background-color: rgb(255, 0, 0);
+  padding: 6px 12px;
+  border-radius: 4px;
 `;
 
 export const Select = styled.select`
@@ -144,7 +163,7 @@ export const CheckboxLabel = styled.label`
   cursor: pointer;
   font-size: 14px;
   user-select: none;
-  flex: 1 1 48%; /* 👈 ocupa 48% da largura, permitindo 2 por linha */
+  flex: 1 1 48%;
   box-sizing: border-box;
 
   input {

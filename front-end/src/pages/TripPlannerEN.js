@@ -15,6 +15,8 @@ import {
   FormRow,
   Label,
   Input,
+  InputWrapper,
+  ErrorMessage,
   CheckboxGroup,
   ContainerButton,
   Button,
@@ -27,12 +29,23 @@ const TripPlanner = () => {
   const [interests, setInterests] = useState("");
   const [tripPlan, setTripPlan] = useState("");
   const [loading, setLoading] = useState(false);
+  const [daysError, setDaysError] = useState(false);
   const planRef = useRef(null);
-  const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
+  const navigate = useNavigate();
+
 
   const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!days || parseInt(days) < 1) {
+      setDaysError(true);
+      return;
+    }
+
+    setDaysError(false);
+
     handlePlanTrip({
       destination,
       days,
@@ -73,13 +86,22 @@ const TripPlanner = () => {
 
                 <FormRow>
                   <Label>Days:</Label>
-                  <Input
-                    type="number"
-                    value={days}
-                    onChange={(e) => setDays(e.target.value)}
-                    required
-                  />
+                  <InputWrapper>
+                    <Input
+                      type="number"
+                      value={days}
+                      onChange={(e) => setDays(e.target.value)}
+                      min="1"
+                      error={daysError ? 1 : 0}
+                    />
+                    {daysError && (
+                      <ErrorMessage>
+                        The number of days must be at least 1.
+                      </ErrorMessage>
+                    )}
+                  </InputWrapper>
                 </FormRow>
+
 
                 <FormRow>
                   <Label>Interesses:</Label>

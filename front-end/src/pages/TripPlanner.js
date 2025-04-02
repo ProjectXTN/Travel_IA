@@ -15,6 +15,8 @@ import {
   FormRow,
   Label,
   Input,
+  InputWrapper,
+  ErrorMessage,
   CheckboxGroup,
   ContainerButton,
   Button,
@@ -31,8 +33,18 @@ const TripPlanner = () => {
   const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
+  const [daysError, setDaysError] = useState(false);
 
   const handleSubmit = (e) => {
+    e.preventDefault();
+
+    if (!days || parseInt(days) < 1) {
+      setDaysError(true);
+      return;
+    }
+
+    setDaysError(false);
+
     handlePlanTrip({
       destination,
       days,
@@ -44,7 +56,8 @@ const TripPlanner = () => {
       event: e,
     });
   };
-  
+
+
   return (
     <>
       <PageWrapper>
@@ -72,13 +85,23 @@ const TripPlanner = () => {
 
                 <FormRow>
                   <Label>Dias:</Label>
-                  <Input
-                    type="number"
-                    value={days}
-                    onChange={(e) => setDays(e.target.value)}
-                    required
-                  />
+                  <InputWrapper>
+                    <Input
+                      type="number"
+                      value={days}
+                      onChange={(e) => setDays(e.target.value)}
+                      min="1"
+                      error={daysError ? 1 : 0}
+                    />
+                    {daysError && (
+                      <ErrorMessage>
+                        O número de dias deve ser no mínimo 1.
+                      </ErrorMessage>
+                    )}
+                  </InputWrapper>
                 </FormRow>
+
+
 
                 <FormRow>
                   <Label>Interesses:</Label>
