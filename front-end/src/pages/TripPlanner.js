@@ -115,7 +115,9 @@ const TripPlanner = () => {
                       "Praia",
                       "História",
                       "Parques"
-                    ].map((interest) => (
+                    ]
+                    .sort((a, b) => a.localeCompare(b))
+                    .map((interest) => (
                       <InterestCheckbox
                         key={interest}
                         interest={interest}
