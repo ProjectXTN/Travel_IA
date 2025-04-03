@@ -79,6 +79,7 @@ const TripPlanner = () => {
                   <Label>Destination:</Label>
                   <Input
                     type="text"
+                    placeholder="Paris"
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     required
@@ -90,6 +91,7 @@ const TripPlanner = () => {
                   <InputWrapper>
                     <Input
                       type="number"
+                      placeholder="5"
                       value={days}
                       onChange={(e) => setDays(e.target.value)}
                       min="1"
