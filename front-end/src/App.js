@@ -6,7 +6,7 @@ import TripPlannerEN from "./pages/TripPlannerEN"; // EN
 
 function App() {
   return (
-    <Router>
+    <Router future={{ v7_startTransition: true, v7_relativeSplatPath: true }}>
       <Routes>
         <Route path="/pt-br" element={<TripPlanner />} />
         <Route path="/fr" element={<TripPlannerFR />} />

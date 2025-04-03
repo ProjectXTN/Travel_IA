@@ -114,13 +114,17 @@ export const Label = styled.label`
 export const Input = styled.input`
   flex: 1;
   padding: 8px;
-  border: 2px solid ${({ error }) => (error ? "rgb(255, 0, 0)" : "#ccc")};
+  border: 1px solid ${({ $error }) => ($error ? "red" : "#ccc")};
   border-radius: 4px;
   font-size: 16px;
   outline: none;
 
   &:focus {
-    border-color: ${({ error }) => (error ? "rgb(255, 0, 0)" : "#2b7fff")};
+    border-color: ${({ $error }) => ($error ? "red" : "#2b7fff")};
+  }
+
+  @media (max-width: 768px) {
+    font-size: 12px;
   }
 `;
 

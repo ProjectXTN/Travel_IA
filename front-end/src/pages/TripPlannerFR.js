@@ -82,7 +82,7 @@ const TripPlannerFR = () => {
                     required
                   />
                 </FormRow>
-                
+
                 <FormRow>
                   <Label>Nombre de jours :</Label>
                   <InputWrapper>
@@ -91,7 +91,7 @@ const TripPlannerFR = () => {
                       value={days}
                       onChange={(e) => setDays(e.target.value)}
                       min="1"
-                      error={daysError ? 1 : 0}
+                      $error={daysError}
                     />
                     {daysError && (
                       <ErrorMessage>

@@ -32,14 +32,14 @@ app.post("/plan-trip", async (req, res) => {
     const { destination, days, interests, language } = req.body;
 
     const prompt = getPromptByLanguage(language, destination, days, interests);
-    console.log('idioma ' + language);
-    console.log('destination ' + destination);
-    console.log('days ' + days);
 
     try {
         const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
             model: "deepseek/deepseek-r1-distill-qwen-32b:free",
-            messages: [{ role: "user", content: prompt }],
+            messages: [{ 
+                role: "user",
+                content: prompt
+             }],
         }, {
             headers: {
                 "Authorization": `Bearer ${OPENROUTER_API_KEY}`,
@@ -49,7 +49,7 @@ app.post("/plan-trip", async (req, res) => {
             }
         });
 
-        console.log("Resposta completa da API:", response.data);
+        //console.log("Resposta completa da API:", response.data);
         res.json({ plan: response.data.choices ? response.data.choices[0].message.content : "Erro na resposta da IA" });
 
     } catch (error) {
