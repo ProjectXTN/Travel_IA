@@ -290,18 +290,38 @@ export const PlanContainer = styled.div`
 
 export const FooterContainer = styled.div`
   width: 100%;
-  height: 50px;
-  background-color: #000000;
-`
+  height: auto;
+  background-color: rgb(0, 96, 148);
+  padding: 10px 0;
+`;
 
 export const FooterContent = styled.div`
   text-align: center;
-`
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+`;
 
 export const FooterText = styled.p`
   color: #fff;
-  font-size: 14px;
+  font-size: 16px;
+  font-weight: 600;
   margin: 0;
-  padding: 10px;
+  padding: 5px;
+`;
+
+export const SocialIcons = styled.div`
+  margin-top: 5px;
+
+  a {
+    color: #fff;
+    margin: 0 8px;
+    font-size: 20px;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #0077b5; /* LinkedIn blue or custom highlight */
+    }
+  }
 `;
 
