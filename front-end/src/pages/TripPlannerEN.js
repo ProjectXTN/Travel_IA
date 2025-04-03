@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { getLanguageFromPath } from "../services/languageService";
 import { handlePlanTrip } from "../services/planTripService";
+import { exportPDF } from "../services/pdfService";
 import InterestCheckbox from "../components/InterestCheckbox";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -148,21 +149,29 @@ const TripPlanner = () => {
         </ContentWrapper>
 
         {tripPlan && (
-          <PlanContainer
-            ref={planRef}
-            dangerouslySetInnerHTML={{
-              __html: tripPlan
-                .replace(/\n/g, "<br>")
-                .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
-                .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
-                  // Codificando o nome do local para ser usado nas URLs
-                  const encodedPlace = encodeURIComponent(place);
-                  // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
-                  return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Google Maps Address</a>`;
-                })
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            }}
-          />
+          <>
+            <PlanContainer
+              id="trip-plan"
+              ref={planRef}
+              dangerouslySetInnerHTML={{
+                __html: tripPlan
+                  .replace(/\n/g, "<br>")
+                  .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
+                  .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
+                    // Codificando o nome do local para ser usado nas URLs
+                    const encodedPlace = encodeURIComponent(place);
+                    // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
+                    return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Google Maps Address</a>`;
+                  })
+                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              }}
+            />
+            <ContainerButton>
+              <Button onClick={() => exportPDF("trip-plan", "my-itinerary.pdf")}>
+                📄 Download Itinerary as PDF
+              </Button>
+            </ContainerButton>
+          </>
         )}
         <Footer />
       </PageWrapper>

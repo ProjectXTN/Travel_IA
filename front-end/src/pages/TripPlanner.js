@@ -3,6 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { getLanguageFromPath } from "../services/languageService";
 import { handlePlanTrip } from "../services/planTripService";
+import { exportPDF } from "../services/pdfService";
 import InterestCheckbox from "../components/InterestCheckbox";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -144,19 +145,27 @@ const TripPlanner = () => {
           </Container>
         </ContentWrapper>
         {tripPlan && (
-          <PlanContainer
-            ref={planRef}
-            dangerouslySetInnerHTML={{
-              __html: tripPlan
-                .replace(/\n/g, "<br>")
-                .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
-                .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
-                  const encodedPlace = encodeURIComponent(place);
-                  return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer"><strong>${place}</strong></a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>`;
-                })
-                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-            }}
-          />
+          <>
+            <PlanContainer
+              id="trip-plan"
+              ref={planRef}
+              dangerouslySetInnerHTML={{
+                __html: tripPlan
+                  .replace(/\n/g, "<br>")
+                  .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
+                  .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
+                    const encodedPlace = encodeURIComponent(place);
+                    return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer"><strong>${place}</strong></a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>`;
+                  })
+                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
+              }}
+            />
+            <ContainerButton>
+              <Button onClick={() => exportPDF("trip-plan", "meu-roteiro.pdf")}>
+                📄 Baixar Roteiro em PDF
+              </Button>
+            </ContainerButton>
+          </>
         )}
         <Footer />
       </PageWrapper>

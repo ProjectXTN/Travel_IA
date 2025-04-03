@@ -177,13 +177,13 @@ export const CheckboxLabel = styled.label`
 
 export const ContainerButton = styled.div`
   width: 100%;
-  margin: 10px;
+  margin: 10px 0px 30px 0px;
   display: flex;
   justify-content: center;
   gap: 10px ;
 
   @media (max-width: 768px) {
-    margin: 0px;
+    margin: 10px 0px 30px 0px;
   }
 `
 
