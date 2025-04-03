@@ -235,12 +235,56 @@ export const Button = styled.button`
 export const PlanContainer = styled.div`
   text-align: left;
   white-space: pre-line;
-  margin-top: 20px;
-  padding: 10px;
-  border: 1px solid #ccc;
-  background: #fff;
-  border-radius: 8px;
+  margin: 20px;
+  padding: 20px;
+  border: 1px solid #ddd;
+  background: #fefefe;
+  border-radius: 12px;
+
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+  font-size: 16px;
+  color: #333;
+  line-height: 1.6;
+
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.05);
+
+  a {
+    color: #007bff;
+    text-decoration: none;
+    font-weight: bold;
+    transition: color 0.3s;
+
+    &:hover {
+      color: #0056b3;
+      text-decoration: underline;
+    }
+  }
+
+  strong {
+    font-weight: bold;
+    color: #111;
+    text-shadow: 0 1px 1px rgba(0,0,0,0.1);
+  }
+
+  br {
+    margin-bottom: 8px;
+  }
+
+  animation: fadeIn 0.5s ease-in-out;
+
+@keyframes fadeIn {
+  from {
+    opacity: 0;
+    transform: translateY(10px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
 `;
+
 
 //Footer
 

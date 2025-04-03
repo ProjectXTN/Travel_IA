@@ -29,7 +29,7 @@ export const handlePlanTrip = async ({
     setTripPlan(data.plan);
     setLoading(false);
 
-    // Scroll até o plano
+    // Scrolling
     setTimeout(() => {
       planRef.current?.scrollIntoView({ behavior: "smooth" });
     }, 100);

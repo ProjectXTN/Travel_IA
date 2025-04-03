@@ -156,6 +156,7 @@ const TripPlannerFR = () => {
                   // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
                   return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">adresse Google Maps</a>`;
                 })
+                .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
             }}
           />
         )}
