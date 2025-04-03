@@ -54,9 +54,9 @@ export const Container = styled.div`
     color: #FFF;
     margin: 50px 0 20px 0;
     text-transform: uppercase;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6); // 👈 sombra no texto
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
     padding: 10px 20px;
-    background-color: rgba(0, 0, 0, 0.4); // 👈 fundo escuro semi-transparente
+    background-color: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
     display: inline-block;
   }
@@ -69,7 +69,7 @@ export const Container = styled.div`
     //min-height: 100vh;
 
     h1 {
-    font-size: 30px;
+    font-size: 24px;
     margin: 10px 10px 10px 10px;
     padding: 10px 15px;
     color: #FFF;
@@ -195,13 +195,14 @@ export const CheckboxLabel = styled.label`
 
 export const ContainerButton = styled.div`
   width: 100%;
-  margin: 10px 0px 30px 0px;
+  margin: 10px 0px 15px 10px;
   display: flex;
-  justify-content: center;
+  justify-content: start;
   gap: 10px ;
 
   @media (max-width: 768px) {
-    margin: 10px 0px 30px 0px;
+    justify-content: center;
+    margin: 10px 0px 10px 0px;
   }
 `
 
