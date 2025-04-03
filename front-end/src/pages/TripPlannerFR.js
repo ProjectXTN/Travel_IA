@@ -112,6 +112,7 @@ const TripPlannerFR = () => {
                       "Culture",
                       "Plage",
                       "Histoire",
+                      "Parcs",
                     ].map((interest) => (
                       <InterestCheckbox
                         key={interest}

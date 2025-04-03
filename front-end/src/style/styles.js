@@ -31,7 +31,6 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  //min-height: calc(100vh - 200px); /* ajuste dependendo da altura do header/footer */
   height: 100vh;
 `;
 
@@ -285,7 +284,6 @@ export const PlanContainer = styled.div`
 
 `;
 
-
 //Footer
 
 export const FooterContainer = styled.div`
@@ -320,7 +318,7 @@ export const SocialIcons = styled.div`
     transition: color 0.3s;
 
     &:hover {
-      color: #0077b5; /* LinkedIn blue or custom highlight */
+      color: #0077b5;
     }
   }
 `;

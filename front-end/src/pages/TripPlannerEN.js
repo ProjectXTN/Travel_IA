@@ -67,9 +67,9 @@ const TripPlanner = () => {
 
             {/* Botões para trocar de idioma */}
             <ContainerButton>
-              <Button onClick={() => navigate("/pt-br")} disabled={loading}>🌎 Português</Button>
+              <Button onClick={() => navigate("/pt-br")} disabled={loading}>🇧🇷 Português</Button>
               <Button onClick={() => navigate("/fr")} disabled={loading}>🇫🇷 Français</Button>
-              <Button onClick={() => navigate("/en")} disabled={loading} >🌎 English</Button>
+              <Button onClick={() => navigate("/en")} disabled={loading} >🇺🇸 English</Button>
             </ContainerButton>
             <ContainerForm>
               <Form onSubmit={handleSubmit}>
@@ -114,6 +114,7 @@ const TripPlanner = () => {
                       "Culture",
                       "Beach",
                       "History",
+                      "Parks",
                     ].map((interest) => (
                       <InterestCheckbox
                         key={interest}
