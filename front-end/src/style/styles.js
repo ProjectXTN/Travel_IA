@@ -40,7 +40,7 @@ export const ContentWrapper = styled.div`
 
 export const Container = styled.div`
   width: 100%;
-  min-height: 100vh;
+  //min-height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
@@ -65,12 +65,12 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    min-height: 100vh;
-    padding-top: 60px;
+    //min-height: 100vh;
+    padding-top: 35px;
 
     h1 {
     font-size: 24px;
-    margin: 50px 10px 10px 10px;
+    margin: 0px 10px 10px 10px;
     padding: 10px 15px;
     color: #FFF;
   }
@@ -119,6 +119,7 @@ export const FormRow = styled.div`
 export const Label = styled.label`
   font-weight: bold;
   width: 120px;
+  color: #000000;
 `;
 
 export const Input = styled.input`
