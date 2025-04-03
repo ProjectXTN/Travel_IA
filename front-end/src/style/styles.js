@@ -236,6 +236,8 @@ export const Button = styled.button`
 `;
 
 export const PlanContainer = styled.div`
+  background-color: #fff; 
+  color: #000;            
   text-align: left;
   white-space: pre-line;
   margin: 20px;

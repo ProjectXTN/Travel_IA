@@ -154,18 +154,32 @@ const TripPlanner = () => {
               dangerouslySetInnerHTML={{
                 __html: tripPlan
                   .replace(/\n/g, "<br>")
+                  // 🆕 Transforma links do tipo [Texto](URL) em <a href="URL">Texto</a>
+                  .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
+                  // Substitui o [Google Maps](url) por um link com texto fixo
                   .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
+                  // Substitui locais com 📍 **Lugar** pelo link do Wikipedia + Google Maps
                   .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
                     const encodedPlace = encodeURIComponent(place);
                     return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer"><strong>${place}</strong></a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>`;
                   })
+                  // Aplica negrito em **Texto**
                   .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
               }}
             />
+
             <ContainerButton>
-              <Button onClick={() => exportPDF("trip-plan", "meu-roteiro.pdf")}>
+              <Button
+                onClick={() =>
+                  exportPDF(
+                    "trip-plan",
+                    `meu-roteiro-${destination.toLowerCase().replace(/\s+/g, "-")}-${days}dias.pdf`
+                  )
+                }
+              >
                 📄 Baixar Roteiro em PDF
               </Button>
+
             </ContainerButton>
           </>
         )}

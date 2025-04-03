@@ -158,18 +158,21 @@ const TripPlanner = () => {
               dangerouslySetInnerHTML={{
                 __html: tripPlan
                   .replace(/\n/g, "<br>")
+                  .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
                   .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
                   .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
-                    // Codificando o nome do local para ser usado nas URLs
                     const encodedPlace = encodeURIComponent(place);
-                    // Retornando o nome do local como um link para a Wikipedia e o link para o Google Maps
-                    return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer">${place}</a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Google Maps Address</a>`;
+                    return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer"><strong>${place}</strong></a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">>Google Maps Address</a>`;
                   })
                   .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
               }}
             />
+
             <ContainerButton>
-              <Button onClick={() => exportPDF("trip-plan", "my-itinerary.pdf")}>
+              <Button onClick={() => exportPDF(
+                "trip-plan",
+                `my-itinerary-${destination.toLowerCase().replace(/\s+/g, "-")}-${days}days.pdf`
+              )}>
                 📄 Download Itinerary as PDF
               </Button>
             </ContainerButton>

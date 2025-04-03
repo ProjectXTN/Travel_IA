@@ -17,7 +17,7 @@ export const exportPDF = (elementId = "trip-plan", fileName = "travel-itinerary.
     margin:       0.5,
     filename:     fileName,
     image:        { type: 'jpeg', quality: 0.98 },
-    html2canvas:  { scale: 2 },
+    html2canvas:  { scale: 2, backgroundColor: "#ffffff" },
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
