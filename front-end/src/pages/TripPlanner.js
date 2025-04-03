@@ -58,7 +58,6 @@ const TripPlanner = () => {
     });
   };
 
-
   return (
     <>
       <PageWrapper>

@@ -24,7 +24,6 @@ export const BannerImage = styled.img`
 export const PageWrapper = styled.div`
   display: flex;
   flex-direction: column;
-  height: 100vh;
 `;
 
 export const ContentWrapper = styled.div`
@@ -32,17 +31,12 @@ export const ContentWrapper = styled.div`
   flex-direction: row;
   width: 100%;
   height: 100vh;
-
-  @media (max-width: 768px) {
-    height: 100%;
-  }
 `;
 
 // Main
 
 export const Container = styled.div`
   width: 100%;
-  height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
