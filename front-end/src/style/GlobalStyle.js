@@ -11,7 +11,6 @@ const GlobalStyle = createGlobalStyle`
     font-family: "Segoe UI", "Apple Color Emoji", "Noto Color Emoji", "Helvetica", "Arial", sans-serif;
     background-color: #ffffff;
     color: #333;
-    line-height: 1.5;
   }
 `;
 

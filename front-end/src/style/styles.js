@@ -28,7 +28,6 @@ export const PageWrapper = styled.div`
 
 export const ContentWrapper = styled.div`
   display: flex;
-  flex-direction: row;
   width: 100%;
 
   @media (max-width: 768px) {
@@ -66,14 +65,14 @@ export const Container = styled.div`
     flex-direction: column;
     justify-content: flex-end;
     min-height: unset;
-    padding-top: 35px;
+    padding: 33px 0;
 
     h1 {
     font-size: 24px;
     margin: 0px 10px 10px 10px;
     padding: 10px 15px;
     color: #FFF;
-  }
+    }
   }
 `;
 
@@ -198,8 +197,9 @@ export const ContainerButton = styled.div`
   width: 100%;
   margin: 10px 0px 15px 10px;
   display: flex;
-  justify-content: start;
   gap: 10px ;
+  justify-content: ${({ variant }) =>
+    variant === "secondary" ? "center" : "start"};
 
   @media (max-width: 768px) {
     justify-content: center;
@@ -335,6 +335,12 @@ export const FooterText = styled.p`
   font-weight: 600;
   margin: 0;
   padding: 5px;
+
+  @media (max-width: 768px) {
+    font-size: 14px;
+    margin: 0;
+    padding: 0px;
+  }
 `;
 
 export const SocialIcons = styled.div`

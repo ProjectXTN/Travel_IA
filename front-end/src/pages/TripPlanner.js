@@ -169,7 +169,7 @@ const TripPlanner = () => {
               }}
             />
 
-            <ContainerButton>
+            <ContainerButton variant="secondary">
               <Button
                 onClick={() =>
                   exportPDF(
