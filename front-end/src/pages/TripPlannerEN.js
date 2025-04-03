@@ -66,7 +66,6 @@ const TripPlanner = () => {
           <Container>
             <h1>Plan your Trip</h1>
 
-            {/* Botões para trocar de idioma */}
             <ContainerButton>
               <Button onClick={() => navigate("/pt-br")} disabled={loading}>🇧🇷 Português</Button>
               <Button onClick={() => navigate("/fr")} disabled={loading}>🇫🇷 Français</Button>
@@ -79,7 +78,7 @@ const TripPlanner = () => {
                   <Label>Destination:</Label>
                   <Input
                     type="text"
-                    placeholder="Paris"
+                    placeholder="Ex: Paris"
                     value={destination}
                     onChange={(e) => setDestination(e.target.value)}
                     required
@@ -91,7 +90,7 @@ const TripPlanner = () => {
                   <InputWrapper>
                     <Input
                       type="number"
-                      placeholder="5"
+                      placeholder="Ex: 5"
                       value={days}
                       onChange={(e) => setDays(e.target.value)}
                       min="1"
