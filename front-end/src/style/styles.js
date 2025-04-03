@@ -40,7 +40,7 @@ export const ContentWrapper = styled.div`
 
 export const Container = styled.div`
   width: 100%;
-  //min-height: 100vh;
+  min-height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
@@ -65,7 +65,7 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    //min-height: 100vh;
+    min-height: unset;
     padding-top: 35px;
 
     h1 {
