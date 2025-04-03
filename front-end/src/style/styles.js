@@ -66,7 +66,8 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
-    //min-height: 100vh;
+    min-height: 100vh;
+    padding-top: 60px;
 
     h1 {
     font-size: 24px;
