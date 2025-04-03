@@ -104,7 +104,7 @@ const TripPlanner = () => {
 
 
                 <FormRow>
-                  <Label>Interesses:</Label>
+                  <Label>Interests:</Label>
                   <CheckboxGroup>
                     {[
                       "Vacation",
