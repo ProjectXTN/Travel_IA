@@ -30,13 +30,17 @@ export const ContentWrapper = styled.div`
   display: flex;
   flex-direction: row;
   width: 100%;
-  height: 100vh;
+
+  @media (max-width: 768px) {
+    flex-direction: column;
+  }
 `;
 
 // Main
 
 export const Container = styled.div`
   width: 100%;
+  min-height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
@@ -61,6 +65,8 @@ export const Container = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: flex-end;
+    min-height: 100vh;
+    padding-top: 60px;
 
     h1 {
     font-size: 24px;
