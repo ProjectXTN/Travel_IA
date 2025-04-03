@@ -42,6 +42,7 @@ export const ContentWrapper = styled.div`
 
 export const Container = styled.div`
   width: 100%;
+  height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
