@@ -49,12 +49,18 @@ export const Container = styled.div`
   margin: 0 auto;
   text-align: center;
 
-  h2 {
+  h1 {
     font-size: 50px;
     color: #FFF;
-    margin-top: 10px;
-    margin-bottom: 10px;
+    margin: 50px 0 20px 0;
+    text-transform: uppercase;
+    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6); // 👈 sombra no texto
+    padding: 10px 20px;
+    background-color: rgba(0, 0, 0, 0.4); // 👈 fundo escuro semi-transparente
+    border-radius: 8px;
+    display: inline-block;
   }
+
 
   @media (max-width: 768px) {
     display: flex;
@@ -62,10 +68,11 @@ export const Container = styled.div`
     justify-content: flex-end;
     //min-height: 100vh;
 
-    h2 {
+    h1 {
     font-size: 30px;
+    margin: 10px 10px 10px 10px;
+    padding: 10px 15px;
     color: #FFF;
-    margin-bottom: 18px;
   }
   }
 `;
@@ -73,7 +80,7 @@ export const Container = styled.div`
 
 export const ContainerForm = styled.div`
   max-width: 600px;
-  padding: 0 25px;
+  padding: 0 10px 25px;
 
   @media (max-width: 768px) {
     padding: 20px;
@@ -172,6 +179,13 @@ export const CheckboxLabel = styled.label`
   user-select: none;
   flex: 1 1 48%;
   box-sizing: border-box;
+  transition: all 0.2 ease-in-out;
+
+  &:hover {
+    background-color: #e0f0ff;
+    box-shadow: 0 0 5px rgba(43, 127, 255, 0.3);
+    transform: scale(1.01);
+  }
 
   input {
     accent-color: #2b7fff;
@@ -204,6 +218,13 @@ export const Button = styled.button`
   align-items: center;
   justify-content: center;
   gap: 8px;
+  transition: all 0.2s ease-in-out;
+
+  &:hover:not(:disabled) {
+    background-color: #1f6fe0;
+    transform: scale(1.02);
+    box-shadow: 0 4px 8px rgba(43, 127, 255, 0.2);
+  }
 
   &:disabled {
     background-color: #cccccc;

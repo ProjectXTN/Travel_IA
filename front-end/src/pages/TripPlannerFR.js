@@ -63,7 +63,7 @@ const TripPlannerFR = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <h2>Planifiez votre voyage</h2>
+            <h1>Planifiez votre voyage</h1>
 
             {/* Botões para trocar de idioma */}
             <ContainerButton>

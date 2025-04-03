@@ -64,7 +64,7 @@ const TripPlanner = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <h2>Planeje sua Viagem</h2>
+            <h1>Planeje sua Viagem</h1>
 
             <ContainerButton>
               <Button onClick={() => navigate("/pt-br")} disabled={loading}>🇧🇷 Português</Button>

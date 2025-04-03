@@ -64,7 +64,7 @@ const TripPlanner = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <h2>Plan your Trip</h2>
+            <h1>Plan your Trip</h1>
 
             {/* Botões para trocar de idioma */}
             <ContainerButton>
