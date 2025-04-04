@@ -13,6 +13,7 @@ import {
   ContainerForm,
   ContentWrapper,
   Container,
+  Title,
   Form,
   FormRow,
   Label,
@@ -64,7 +65,9 @@ const TripPlannerFR = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <h1>Planifiez votre voyage</h1>
+            <Title>
+              <h1>Planeje sua Viagem</h1>
+            </Title>
             <ContainerGeneral>
 
 

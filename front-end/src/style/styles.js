@@ -60,13 +60,25 @@ export const Container = styled.div`
   text-align: center;
   padding: 60px 0;
 
-  h1 {
+  @media (max-width: 768px) {
+    display: flex;
+    flex-direction: column;
+    //justify-content: flex-end;
+    min-height: unset;
+    padding: 33px 0;
+
+  }
+`;
+
+export const Title = styled.div`
+
+h1 {
     font-size: 50px;
     color: #FFF;
-    margin: 50px 0 20px 0;
+    margin: 20px 0 20px 0;
     text-transform: uppercase;
     text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-    padding: 10px 20px;
+    padding: 10px 30px;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
     display: inline-block;
@@ -75,20 +87,15 @@ export const Container = styled.div`
 
 
   @media (max-width: 768px) {
-    display: flex;
-    flex-direction: column;
-    //justify-content: flex-end;
-    min-height: unset;
-    padding: 33px 0;
-
     h1 {
     font-size: 24px;
     margin: 0px 10px 10px 10px;
-    padding: 10px 15px;
+    padding: 10px 30px;
     color: #FFF;
     }
   }
-`;
+
+`
 
 
 //Form
