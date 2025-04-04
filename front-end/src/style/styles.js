@@ -133,7 +133,15 @@ export const Label = styled.label`
   font-weight: bold;
   min-width: 120px;
   color: #000000;
+  white-space: nowrap;
+
+  @media (max-width: 768px) {
+    min-width: auto;
+    white-space: normal;
+    font-size: 14px;
+  }
 `;
+
 
 export const Input = styled.input`
   flex: 1;
