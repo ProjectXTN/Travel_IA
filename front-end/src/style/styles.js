@@ -91,7 +91,7 @@ h1 {
     h1 {
     font-size: 24px;
     margin: 0px 10px 10px 10px;
-    padding: 10px 10px;
+    padding: 10px 20px;
     color: #FFF;
     }
   }
