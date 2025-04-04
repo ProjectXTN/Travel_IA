@@ -22,30 +22,43 @@ export const BannerImage = styled.img`
 //Wrapper
 
 export const PageWrapper = styled.div`
+  //min-height: 100vh;
   display: flex;
   flex-direction: column;
 `;
 
 export const ContentWrapper = styled.div`
-  display: flex;
   width: 100%;
+  height: 100vh;
+  display: flex;
 
   @media (max-width: 768px) {
-    flex-direction: column;
+    //flex-direction: column;
   }
 `;
+
+export const ContainerGeneral = styled.div`
+
+  @media (max-width: 768px) {
+    width: 100%;
+    height: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: space-between;
+  }
+`
 
 // Main
 
 export const Container = styled.div`
   width: 100%;
-  min-height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
   margin: 0 auto;
   text-align: center;
+  padding: 60px 0;
 
   h1 {
     font-size: 50px;
@@ -63,7 +76,7 @@ export const Container = styled.div`
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    justify-content: flex-end;
+    //justify-content: flex-end;
     min-height: unset;
     padding: 33px 0;
 
@@ -77,6 +90,7 @@ export const Container = styled.div`
 `;
 
 
+//Form
 export const ContainerForm = styled.div`
   max-width: 600px;
   padding: 0 10px 25px;
@@ -85,22 +99,20 @@ export const ContainerForm = styled.div`
     padding: 20px;
   }
 `
-//Form
-
 export const Form = styled.form`
   display: flex;
   flex-direction: column;
   gap: 10px;
   padding: 20px;
-  background: #f9f9f9;
-  border-radius: 8px;
+  background: #fff;
+  border-radius: 25px;
   box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 
   @media (max-width: 768px) {
     text-align: start;
-    padding: 20px 20px 30px 20px;
-    background: rgba(255, 255, 255, 0.3);
-    box-shadow: none;
+    //padding: 20px 20px 30px 20px;
+    //background: rgba(255, 255, 255, 0.3);
+    //box-shadow: none;
   }
 `;
 
@@ -108,16 +120,18 @@ export const FormRow = styled.div`
   display: flex;
   align-items: center;
   gap: 10px;
-  margin-bottom: 10px;
+  //margin-bottom: 10px;
 
   @media (max-width: 768px) {
     align-items: flex-start;
+    flex-direction: ${({ variant }) =>
+    variant === "secondary" ? "column" : "row"};
   }
 `;
 
 export const Label = styled.label`
   font-weight: bold;
-  width: 120px;
+  min-width: 120px;
   color: #000000;
 `;
 
@@ -125,7 +139,7 @@ export const Input = styled.input`
   flex: 1;
   padding: 8px;
   border: 1px solid ${({ $error }) => ($error ? "red" : "#ccc")};
-  border-radius: 4px;
+  border-radius: 10px;
   font-size: 16px;
   outline: none;
 
@@ -173,7 +187,7 @@ export const CheckboxLabel = styled.label`
   gap: 6px;
   background: #f2f2f2;
   padding: 6px 5px;
-  border-radius: 6px;
+  border-radius: 10px;
   cursor: pointer;
   font-size: 14px;
   user-select: none;
@@ -208,11 +222,9 @@ export const ContainerButton = styled.div`
 `
 
 export const Button = styled.button`
-  background-color: #2b7fff;
   color: white;
   padding: 10px 20px;
-  border: none;
-  border-radius: 6px;
+  border-radius: 16px;
   font-weight: bold;
   cursor: pointer;
   font-size: 16px;
@@ -221,15 +233,30 @@ export const Button = styled.button`
   justify-content: center;
   gap: 8px;
   transition: all 0.2s ease-in-out;
+  border: none;
+
+  background-color: ${({ variant }) =>
+    variant === "secondary" ? "rgba(0, 0, 0, 0.4)" : "#2b7fff"};
+
+  border: ${({ variant }) =>
+    variant === "secondary" ? "1px solid rgba(255, 255, 255, 0.5)" : "none"};
+
+  backdrop-filter: ${({ variant }) =>
+    variant === "secondary" ? "blur(4px)" : "none"};
 
   &:hover:not(:disabled) {
-    background-color: #1f6fe0;
-    transform: scale(1.02);
-    box-shadow: 0 4px 8px rgba(43, 127, 255, 0.2);
+    background-color: ${({ variant }) =>
+      variant === "secondary" ? "rgba(0, 0, 0, 0.6)" : "#1f6fe0"};
+    transform: scale(1.05);
+    box-shadow: 0 4px 12px
+      ${({ variant }) =>
+        variant === "secondary"
+          ? "rgba(0, 0, 0, 0.2)"
+          : "rgba(43, 127, 255, 0.2)"};
   }
 
   &:disabled {
-    background-color: #cccccc;
+    opacity: 0.5;
     cursor: not-allowed;
   }
 
@@ -254,9 +281,12 @@ export const Button = styled.button`
   }
 
   @media (max-width: 768px) {
-    padding: 10px 10px;
+    padding: 10px 12px;
+    font-size: 14px;
   }
 `;
+
+
 
 export const PlanContainer = styled.div`
   background-color: #fff; 

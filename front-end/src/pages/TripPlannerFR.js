@@ -9,6 +9,7 @@ import Header from "../components/Header";
 import Footer from "../components/Footer";
 import {
   PageWrapper,
+  ContainerGeneral,
   ContainerForm,
   ContentWrapper,
   Container,
@@ -64,89 +65,90 @@ const TripPlannerFR = () => {
         <ContentWrapper>
           <Container>
             <h1>Planifiez votre voyage</h1>
+            <ContainerGeneral>
 
-            {/* Botões para trocar de idioma */}
-            <ContainerButton>
-              <Button onClick={() => navigate("/pt-br")} disabled={loading}>🇧🇷 Português</Button>
-              <Button onClick={() => navigate("/fr")} disabled={loading}>🇫🇷 Français</Button>
-              <Button onClick={() => navigate("/en")} disabled={loading}>🇺🇸 English</Button>
-            </ContainerButton>
-            <ContainerForm>
-              <Form onSubmit={handleSubmit}>
 
-                <FormRow>
-                  <Label>Destination:</Label>
-                  <Input
-                    type="text"
-                    placeholder="Ex: Paris"
-                    value={destination}
-                    onChange={(e) => setDestination(e.target.value)}
-                    required
-                  />
-                </FormRow>
+              <ContainerButton>
+                <Button onClick={() => navigate("/pt-br")} disabled={loading} variant="secondary">🇧🇷 Português</Button>
+                <Button onClick={() => navigate("/fr")} disabled={loading} variant="secondary">🇫🇷 Français</Button>
+                <Button onClick={() => navigate("/en")} disabled={loading} variant="secondary">🇺🇸 English</Button>
+              </ContainerButton>
+              <ContainerForm>
+                <Form onSubmit={handleSubmit}>
 
-                <FormRow>
-                  <Label>Nombre de jours :</Label>
-                  <InputWrapper>
+                  <FormRow>
+                    <Label>Destination:</Label>
                     <Input
-                      type="number"
-                      placeholder="Ex: 5"
-                      value={days}
-                      onChange={(e) => setDays(e.target.value)}
-                      min="1"
-                      $error={daysError}
+                      type="text"
+                      placeholder="Ex: Paris"
+                      value={destination}
+                      onChange={(e) => setDestination(e.target.value)}
+                      required
                     />
-                    {daysError && (
-                      <ErrorMessage>
-                        Le nombre de jours doit être d'au moins 1.
-                      </ErrorMessage>
-                    )}
-                  </InputWrapper>
-                </FormRow>
+                  </FormRow>
 
-                <FormRow>
-                  <Label>Centre d'intérêt:</Label>
-                  <CheckboxGroup>
-                    {[
-                      "Vacances",
-                      "Tourisme",
-                      "Cuisine",
-                      "Aventure",
-                      "Culture",
-                      "Plage",
-                      "Histoire",
-                      "Parcs",
-                    ]
-                    .sort((a, b) => a.localeCompare(b))
-                    .map((interest) => (
-                      <InterestCheckbox
-                        key={interest}
-                        interest={interest}
-                        checked={interests.includes(interest)}
-                        onChange={(e) => {
-                          if (e.target.checked) {
-                            setInterests([...interests, interest]);
-                          } else {
-                            setInterests(interests.filter((i) => i !== interest));
-                          }
-                        }}
+                  <FormRow>
+                    <Label>Nombre de jours :</Label>
+                    <InputWrapper>
+                      <Input
+                        type="number"
+                        placeholder="Ex: 5"
+                        value={days}
+                        onChange={(e) => setDays(e.target.value)}
+                        min="1"
+                        $error={daysError}
                       />
-                    ))}
-                  </CheckboxGroup>
-                </FormRow>
+                      {daysError && (
+                        <ErrorMessage>
+                          Le nombre de jours doit être d'au moins 1.
+                        </ErrorMessage>
+                      )}
+                    </InputWrapper>
+                  </FormRow>
 
-                <Button type="submit" disabled={loading}>
-                  {loading ? (
-                    <>
-                      <span className="loader" /> Génération du plan en cours...
-                    </>
-                  ) : (
-                    "Générer un itinéraire"
-                  )}
-                </Button>
-              </Form>
-            </ContainerForm>
+                  <FormRow variant="secondary">
+                    <Label>Centre d'intérêt:</Label>
+                    <CheckboxGroup>
+                      {[
+                        "Vacances",
+                        "Tourisme",
+                        "Cuisine",
+                        "Aventure",
+                        "Culture",
+                        "Plage",
+                        "Histoire",
+                        "Parcs",
+                      ]
+                        .sort((a, b) => a.localeCompare(b))
+                        .map((interest) => (
+                          <InterestCheckbox
+                            key={interest}
+                            interest={interest}
+                            checked={interests.includes(interest)}
+                            onChange={(e) => {
+                              if (e.target.checked) {
+                                setInterests([...interests, interest]);
+                              } else {
+                                setInterests(interests.filter((i) => i !== interest));
+                              }
+                            }}
+                          />
+                        ))}
+                    </CheckboxGroup>
+                  </FormRow>
 
+                  <Button type="submit" disabled={loading}>
+                    {loading ? (
+                      <>
+                        <span className="loader" /> Génération du plan en cours...
+                      </>
+                    ) : (
+                      "Générer un itinéraire"
+                    )}
+                  </Button>
+                </Form>
+              </ContainerForm>
+            </ContainerGeneral>
           </Container>
         </ContentWrapper>
         {tripPlan && (
