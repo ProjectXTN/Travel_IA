@@ -119,7 +119,7 @@ export const Form = styled.form`
 export const FormRow = styled.div`
   display: flex;
   align-items: center;
-  gap: 10px;
+  //gap: 10px;
   //margin-bottom: 10px;
 
   @media (max-width: 768px) {
@@ -133,6 +133,8 @@ export const FormRow = styled.div`
 export const Label = styled.label`
   font-weight: bold;
   min-width: 120px;
+  margin-right: 10px;
+  margin-bottom: 10px;
   color: #000000;
   white-space: nowrap;
 
