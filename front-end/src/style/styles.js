@@ -71,6 +71,8 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.div`
+  display: flex;
+  justify-content: center;
 
 h1 {
     font-size: 50px;
@@ -81,7 +83,6 @@ h1 {
     padding: 10px 30px;
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
-    display: inline-block;
     word-spacing: normal;
   }
 
@@ -90,7 +91,7 @@ h1 {
     h1 {
     font-size: 24px;
     margin: 0px 10px 10px 10px;
-    padding: 10px 30px;
+    padding: 10px 10px;
     color: #FFF;
     }
   }

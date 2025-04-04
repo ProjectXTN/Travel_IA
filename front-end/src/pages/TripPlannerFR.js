@@ -66,7 +66,7 @@ const TripPlannerFR = () => {
         <ContentWrapper>
           <Container>
             <Title>
-              <h1>Planeje sua Viagem</h1>
+              <h1>Planifiez votre voyage</h1>
             </Title>
             <ContainerGeneral>
 
