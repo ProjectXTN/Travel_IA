@@ -123,7 +123,8 @@ export const FormRow = styled.div`
   //margin-bottom: 10px;
 
   @media (max-width: 768px) {
-    align-items: flex-start;
+    flex-direction: column;
+    align-items: stretch; 
     flex-direction: ${({ variant }) =>
     variant === "secondary" ? "column" : "row"};
   }
@@ -161,6 +162,7 @@ export const Input = styled.input`
 `;
 
 export const InputWrapper = styled.div`
+  width: 100%;
   flex: 1;
   display: flex;
   flex-direction: column;
