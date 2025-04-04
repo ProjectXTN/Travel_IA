@@ -86,17 +86,17 @@ export const Title = styled.div`
   display: flex;
   justify-content: center;
 
-h1 {
-    font-size: 50px;
-    color: #FFF;
-    margin: 20px 0 20px 0;
-    text-transform: uppercase;
-    text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-    padding: 10px 30px;
-    background-color: rgba(0, 0, 0, 0.4);
-    border-radius: 8px;
-    word-spacing: normal;
-  }
+  h1 {
+      font-size: 50px;
+      color: #FFF;
+      margin: 20px 0 20px 0;
+      text-transform: uppercase;
+      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
+      padding: 10px 30px;
+      background-color: rgba(0, 0, 0, 0.4);
+      border-radius: 8px;
+      word-spacing: -0.1ch;
+    }
 
 
   @media (max-width: 768px) {
@@ -107,7 +107,6 @@ h1 {
     color: #FFF;
     }
   }
-
 `
 
 //Form
