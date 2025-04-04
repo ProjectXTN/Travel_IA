@@ -90,7 +90,7 @@ const TripPlannerFR = () => {
                   </FormRow>
 
                   <FormRow>
-                    <Label>Nombre de jours :</Label>
+                  <Label>Nombre&nbsp;de&nbsp;jours&nbsp;:</Label>
                     <InputWrapper>
                       <Input
                         type="number"
