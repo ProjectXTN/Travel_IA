@@ -70,6 +70,7 @@ export const Container = styled.div`
     background-color: rgba(0, 0, 0, 0.4);
     border-radius: 8px;
     display: inline-block;
+    word-spacing: normal;
   }
 
 
@@ -136,7 +137,7 @@ export const Label = styled.label`
   margin-right: 10px;
   margin-bottom: 10px;
   color: #000000;
-  white-space: nowrap;
+  word-spacing: normal;
 
   @media (max-width: 768px) {
     min-width: auto;
