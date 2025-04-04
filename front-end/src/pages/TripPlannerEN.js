@@ -70,7 +70,6 @@ const TripPlanner = () => {
               <h1>Plan your Trip</h1>
             </Title>
             <ContainerGeneral>
-
               <ContainerButton>
                 <Button onClick={() => navigate("/pt-br")} disabled={loading} variant="secondary">🇧🇷 Português</Button>
                 <Button onClick={() => navigate("/fr")} disabled={loading} variant="secondary">🇫🇷 Français</Button>
@@ -78,7 +77,6 @@ const TripPlanner = () => {
               </ContainerButton>
               <ContainerForm>
                 <Form onSubmit={handleSubmit}>
-
                   <FormRow>
                     <Label>Destination:</Label>
                     <Input

@@ -69,8 +69,6 @@ const TripPlannerFR = () => {
               <h1>Planifiez votre voyage</h1>
             </Title>
             <ContainerGeneral>
-
-
               <ContainerButton>
                 <Button onClick={() => navigate("/pt-br")} disabled={loading} variant="secondary">🇧🇷 Português</Button>
                 <Button onClick={() => navigate("/fr")} disabled={loading} variant="secondary">🇫🇷 Français</Button>

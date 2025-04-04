@@ -98,7 +98,6 @@ h1 {
 
 `
 
-
 //Form
 export const ContainerForm = styled.div`
   max-width: 600px;
@@ -380,17 +379,22 @@ export const FooterContent = styled.div`
   align-items: center;
 `;
 
-export const FooterText = styled.p`
-  color: #fff;
-  font-size: 16px;
-  font-weight: 600;
-  margin: 0;
-  padding: 5px;
+export const FooterText = styled.div`
+  text-align: center;
 
-  @media (max-width: 768px) {
-    font-size: 14px;
+  p {
+    color: #fff;
+    font-size: 16px;
+    font-weight: 600;
     margin: 0;
-    padding: 0px;
+    padding: 5px;
+  }
+  @media (max-width: 768px) {
+    p {
+      font-size: 14px;
+      margin: 0;
+      padding: 0px;
+    }
   }
 `;
 

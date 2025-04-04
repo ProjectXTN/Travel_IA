@@ -14,7 +14,11 @@ const Footer = () => {
     return (
         <FooterContainer>
             <FooterContent>
-                <FooterText>Pedro MEIRELES © 2025</FooterText>
+                <FooterText>
+                    <p>
+                        Pedro MEIRELES © 2025
+                    </p>
+                </FooterText>
                 <SocialIcons>
                     <a href="https://www.linkedin.com/in/pedro-henrique-braz-meireles-68609b204/" target="_blank" rel="noopener noreferrer">
                         <FaLinkedin />
