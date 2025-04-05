@@ -32,6 +32,7 @@ const TripPlanner = () => {
   const [interests, setInterests] = useState("");
   const [tripPlan, setTripPlan] = useState("");
   const [loading, setLoading] = useState(false);
+  const[customInterest, setCustomInterest] = useState("");
   const [daysError, setDaysError] = useState(false);
   const planRef = useRef(null);
   const location = useLocation();
@@ -49,10 +50,19 @@ const TripPlanner = () => {
 
     setDaysError(false);
 
+    let allInterests = [...interests];
+    if (customInterest.trim() !== "") {
+      const cleaned = customInterest.trim();
+      if (!allInterests.includes(cleaned)) {
+        allInterests.push(cleaned);
+      }
+      setCustomInterest("");
+    }
+
     handlePlanTrip({
       destination,
       days,
-      interests,
+      interests: allInterests,
       language,
       setTripPlan,
       setLoading,
@@ -72,9 +82,9 @@ const TripPlanner = () => {
             </Title>
             <ContainerGeneral>
               <ContainerButton>
-                <Button onClick={() => navigate("/pt-br")} disabled={loading} variant="secondary">🇧🇷 Português</Button>
-                <Button onClick={() => navigate("/fr")} disabled={loading} variant="secondary">🇫🇷 Français</Button>
-                <Button onClick={() => navigate("/en")} disabled={loading} variant="secondary">🇺🇸 English</Button>
+                <Button onClick={() => navigate("/pt-br")} disabled={loading} $variant="secondary">🇧🇷 Português</Button>
+                <Button onClick={() => navigate("/fr")} disabled={loading} $variant="secondary">🇫🇷 Français</Button>
+                <Button onClick={() => navigate("/en")} disabled={loading} $variant="secondary">🇺🇸 English</Button>
               </ContainerButton>
               <ContainerForm>
                 <Form onSubmit={handleSubmit}>
@@ -109,7 +119,7 @@ const TripPlanner = () => {
                   </FormRow>
 
 
-                  <FormRow variant="secondary">
+                  <FormRow $variant="secondary">
                     <Label>Interests:</Label>
                     <CheckboxGroup>
                       {[
@@ -138,6 +148,27 @@ const TripPlanner = () => {
                           />
                         ))}
                     </CheckboxGroup>
+                    <InputWrapper style={{ marginTop: "10px" }}>
+                      <Input
+                        type="text"
+                        placeholder="Add custom interest"
+                        value={customInterest}
+                        onChange={(e) => setCustomInterest(e.target.value)}
+                        onKeyDown={(e) => {
+                          if (
+                            e.key === "Enter" &&
+                            customInterest.trim() !== ""
+                          ) {
+                            const cleaned = customInterest.trim();
+                            if (!interests.includes(cleaned)) {
+                              setInterests([...interests, cleaned]);
+                            }
+                            setCustomInterest("");
+                            e.preventDefault();
+                          }
+                        }}
+                      />
+                    </InputWrapper>
                   </FormRow>
 
                   <Button type="submit" disabled={loading}>
@@ -174,7 +205,7 @@ const TripPlanner = () => {
               }}
             />
 
-            <ContainerButton>
+            <ContainerButton $variant="secondary">
               <Button onClick={() => exportPDF(
                 "trip-plan",
                 `my-itinerary-${destination.toLowerCase().replace(/\s+/g, "-")}-${days}days.pdf`

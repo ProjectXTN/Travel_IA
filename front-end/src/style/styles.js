@@ -115,7 +115,7 @@ export const ContainerForm = styled.div`
   padding: 0 10px 25px;
 
   @media (max-width: 768px) {
-    padding: 20px;
+    padding: 40px;
   }
 `
 export const Form = styled.form`
@@ -137,15 +137,13 @@ export const Form = styled.form`
 
 export const FormRow = styled.div`
   display: flex;
-  align-items: center;
-  //gap: 10px;
-  //margin-bottom: 10px;
+  align-items: start;
+  flex-direction: ${({ $variant }) =>
+    $variant === "secondary" ? "column" : "row"};
 
   @media (max-width: 768px) {
     flex-direction: column;
     align-items: stretch; 
-    flex-direction: ${({ variant }) =>
-    variant === "secondary" ? "column" : "row"};
   }
 `;
 
@@ -243,8 +241,8 @@ export const ContainerButton = styled.div`
   margin: 10px 0px 15px 10px;
   display: flex;
   gap: 10px ;
-  justify-content: ${({ variant }) =>
-    variant === "secondary" ? "center" : "start"};
+  justify-content: ${({ $variant }) =>
+    $variant === "secondary" ? "center" : "start"};
 
   @media (max-width: 768px) {
     justify-content: center;
@@ -266,22 +264,22 @@ export const Button = styled.button`
   transition: all 0.2s ease-in-out;
   border: none;
 
-  background-color: ${({ variant }) =>
-    variant === "secondary" ? "rgba(0, 0, 0, 0.4)" : "#2b7fff"};
+  background-color: ${({ $variant }) =>
+    $variant === "secondary" ? "rgba(0, 0, 0, 0.4)" : "#2b7fff"};
 
-  border: ${({ variant }) =>
-    variant === "secondary" ? "1px solid rgba(255, 255, 255, 0.5)" : "none"};
+  border: ${({ $variant }) =>
+    $variant === "secondary" ? "1px solid rgba(255, 255, 255, 0.5)" : "none"};
 
-  backdrop-filter: ${({ variant }) =>
-    variant === "secondary" ? "blur(4px)" : "none"};
+  backdrop-filter: ${({ $variant }) =>
+    $variant === "secondary" ? "blur(4px)" : "none"};
 
   &:hover:not(:disabled) {
-    background-color: ${({ variant }) =>
-      variant === "secondary" ? "rgba(0, 0, 0, 0.6)" : "#1f6fe0"};
+    background-color: ${({ $variant }) =>
+      $variant === "secondary" ? "rgba(0, 0, 0, 0.6)" : "#1f6fe0"};
     transform: scale(1.05);
     box-shadow: 0 4px 12px
-      ${({ variant }) =>
-        variant === "secondary"
+      ${({ $variant }) =>
+        $variant === "secondary"
           ? "rgba(0, 0, 0, 0.2)"
           : "rgba(43, 127, 255, 0.2)"};
   }
