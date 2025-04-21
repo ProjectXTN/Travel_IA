@@ -375,10 +375,12 @@ export const PlanContainer = styled.div`
 //Footer
 
 export const FooterContainer = styled.div`
+  position: fixed;
+  bottom: 0;
   width: 100%;
   height: auto;
   background-color: rgb(0, 96, 148);
-  padding: 10px 0;
+  //padding: 10px 0;
 `;
 
 export const FooterContent = styled.div`
