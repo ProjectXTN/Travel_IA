@@ -64,16 +64,8 @@ const TripPlanner = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <Header />
-            <Title>
-              <h1>Planeje sua Viagem</h1>
-            </Title>
+          <Header loading={loading} title="Planeje sua Viagem" />
             <ContainerGeneral>
-              <ContainerButton>
-                <Button onClick={() => navigate("/pt-br")} disabled={loading} $variant="secondary">🇧🇷 Português</Button>
-                <Button onClick={() => navigate("/fr")} disabled={loading} $variant="secondary">🇫🇷 Français</Button>
-                <Button onClick={() => navigate("/en")} disabled={loading} $variant="secondary">🇺🇸 English</Button>
-              </ContainerButton>
               <ContainerForm>
                 <Form onSubmit={handleSubmit}>
                   <FormRow>
@@ -206,12 +198,11 @@ const TripPlanner = () => {
               >
                 📄 Baixar Roteiro em PDF
               </Button>
-
             </ContainerButton>
           </>
         )}
-        <Footer />
       </PageWrapper>
+      <Footer />
     </>
   );
 };

@@ -64,16 +64,8 @@ const TripPlannerEN = () => {
       <PageWrapper>
         <ContentWrapper>
           <Container>
-            <Header />
-            <Title>
-              <h1>Plan your Trip</h1>
-            </Title>
+            <Header loading={loading} title="Plan your Trip" />
             <ContainerGeneral>
-              <ContainerButton>
-                <Button onClick={() => navigate("/pt-br")} disabled={loading} $variant="secondary">🇧🇷 Português</Button>
-                <Button onClick={() => navigate("/fr")} disabled={loading} $variant="secondary">🇫🇷 Français</Button>
-                <Button onClick={() => navigate("/en")} disabled={loading} $variant="secondary">🇺🇸 English</Button>
-              </ContainerButton>
               <ContainerForm>
                 <Form onSubmit={handleSubmit}>
                   <FormRow>
@@ -158,7 +150,6 @@ const TripPlannerEN = () => {
                       />
                     </InputWrapper>
                   </FormRow>
-
                   <Button type="submit" disabled={loading}>
                     {loading ? (
                       <>
@@ -203,8 +194,8 @@ const TripPlannerEN = () => {
             </ContainerButton>
           </>
         )}
-        <Footer />
       </PageWrapper>
+      <Footer />
     </>
   );
 };

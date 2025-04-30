@@ -4,28 +4,35 @@ import styled from "styled-components";
 
 export const HeaderContainer = styled.header`
   width: 100%;
+  background: linear-gradient(90deg, #283e51 0%, #485563 100%);
   display: flex;
-  justify-content: center;
-  padding-top: 10px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 10px 20px;
+  flex-wrap: wrap;
+  box-shadow: 0 2px 10px rgba(0, 0, 0, 0.2);
+
   @media (max-width: 768px) {
-    margin-bottom: 10px;
+    flex-direction: column;
+    gap: 10px;
   }
 `;
 
+
 export const BannerImage = styled.img`
-  width: 125px;
-  height: 125px;
+  width: 80px;
+  height: 80px;
   cursor: pointer;
   transition: transform 0.3s ease, filter 0.3s ease;
 
   &:hover {
-    transform: scale(1.05);
-    filter: brightness(1.1);
+    transform: scale(1.08);
+    filter: brightness(1.2);
   }
 
   @media (max-width: 768px) {
-    width: 70px;
-    height: 70px;
+    width: 60px;
+    height: 60px;
   }
 `;
 
@@ -34,7 +41,8 @@ export const BannerImage = styled.img`
 //Wrapper
 
 export const PageWrapper = styled.div`
-  //min-height: 100vh;
+  min-height: 100vh;
+  background: linear-gradient(90deg, #283e51 0%, #485563 100%);
   display: flex;
   flex-direction: column;
 `;
@@ -42,14 +50,19 @@ export const PageWrapper = styled.div`
 export const ContentWrapper = styled.div`
   width: 100%;
   height: 100vh;
+  flex: 1;
   display: flex;
+  flex-direction: column;
 
   @media (max-width: 768px) {
-    //flex-direction: column;
   }
 `;
 
 export const ContainerGeneral = styled.div`
+  height: 100vh;
+  background-image: url("/img/img-travel-ia-banner.png");
+  background-size: cover;
+  background-repeat: no-repeat;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -57,6 +70,7 @@ export const ContainerGeneral = styled.div`
     display: flex;
     flex-direction: column;
     justify-content: space-between;
+    background-position: center;
   }
 `
 
@@ -64,7 +78,6 @@ export const ContainerGeneral = styled.div`
 
 export const Container = styled.div`
   width: 100%;
-  background-image: url("/img/img-travel-ia-banner.png");
   background-position: center;
   background-size: cover;
   background-repeat: no-repeat;
@@ -83,39 +96,32 @@ export const Container = styled.div`
 `;
 
 export const Title = styled.div`
-  display: flex;
-  justify-content: center;
+  flex: 1;
+  text-align: center;
 
   h1 {
-      font-size: 50px;
-      color: #FFF;
-      margin: 20px 0 20px 0;
-      text-transform: uppercase;
-      text-shadow: 2px 2px 6px rgba(0, 0, 0, 0.6);
-      padding: 10px 30px;
-      background-color: rgba(0, 0, 0, 0.4);
-      border-radius: 8px;
-      word-spacing: -0.1ch;
-    }
-
+    font-size: 1.8rem;
+    font-family: 'Poppins', sans-serif;
+    color: white;
+    text-shadow: 1px 1px 3px rgba(0, 0, 0, 0.4);
+    margin: 0;
+  }
 
   @media (max-width: 768px) {
     h1 {
-    font-size: 24px;
-    margin: 0px 10px 10px 10px;
-    padding: 10px 20px;
-    color: #FFF;
+      font-size: 1.4rem;
     }
   }
-`
+`;
+
 
 //Form
 export const ContainerForm = styled.div`
-  max-width: 600px;
-  padding: 0 10px 25px;
+  max-width: 450px;
+  padding: 50px 25px 25px;
 
   @media (max-width: 768px) {
-    padding: 40px;
+    padding: 20px 30px;
   }
 `
 export const Form = styled.form`
@@ -129,9 +135,7 @@ export const Form = styled.form`
 
   @media (max-width: 768px) {
     text-align: start;
-    //padding: 20px 20px 30px 20px;
-    //background: rgba(255, 255, 255, 0.3);
-    //box-shadow: none;
+    background: rgba(255, 255, 255, 0.4);
   }
 `;
 
@@ -237,51 +241,59 @@ export const CheckboxLabel = styled.label`
 
 
 export const ContainerButton = styled.div`
-  width: 100%;
-  margin: 10px 0px 15px 10px;
   display: flex;
-  gap: 10px ;
+  gap: 12px;
+
   justify-content: ${({ $variant }) =>
-    $variant === "secondary" ? "center" : "start"};
+    $variant === "secondary" ? "center" : "flex-start"};
+
+  margin-bottom: ${({ $variant }) =>
+    $variant === "secondary" ? "30px" : "0"};
 
   @media (max-width: 768px) {
-    justify-content: center;
-    margin: 10px 0px 10px 0px;
+    /* flex-direction: column; */
+    align-items: center;
   }
-`
+`;
 
 export const Button = styled.button`
-  color: white;
-  padding: 10px 20px;
-  border-radius: 16px;
-  font-weight: bold;
-  cursor: pointer;
-  font-size: 16px;
   display: flex;
   align-items: center;
   justify-content: center;
-  gap: 8px;
-  transition: all 0.2s ease-in-out;
-  border: none;
-
+  cursor: pointer;
+  border-radius: 8px;
+  padding: ${({ $variant }) =>
+    $variant === "language" ? "8px" : "12px 24px"};
+  font-size: ${({ $variant }) =>
+    $variant === "language" ? "14px" : "16px"};
   background-color: ${({ $variant }) =>
-    $variant === "secondary" ? "rgba(0, 0, 0, 0.4)" : "#2b7fff"};
-
+    $variant === "language" ? "transparent" : "#2b7fff"};
   border: ${({ $variant }) =>
-    $variant === "secondary" ? "1px solid rgba(255, 255, 255, 0.5)" : "none"};
+    $variant === "language"
+      ? "none"
+      : "none"};
+  color: ${({ $variant }) =>
+    $variant === "language" ? "white" : "white"};
 
-  backdrop-filter: ${({ $variant }) =>
-    $variant === "secondary" ? "blur(4px)" : "none"};
+  transition: all 0.3s ease;
+
+  img {
+    width: 24px;
+    height: 24px;
+    border-radius: 3px;
+  }
 
   &:hover:not(:disabled) {
     background-color: ${({ $variant }) =>
-      $variant === "secondary" ? "rgba(0, 0, 0, 0.6)" : "#1f6fe0"};
-    transform: scale(1.05);
-    box-shadow: 0 4px 12px
-      ${({ $variant }) =>
-        $variant === "secondary"
-          ? "rgba(0, 0, 0, 0.2)"
-          : "rgba(43, 127, 255, 0.2)"};
+    $variant === "language"
+      ? "rgba(255, 255, 255, 0.15)"
+      : "#1f6fe0"};
+    transform: ${({ $variant }) =>
+    $variant === "language" ? "none" : "scale(1.03)"};
+    box-shadow: ${({ $variant }) =>
+    $variant === "language"
+      ? "none"
+      : "0 4px 12px rgba(43, 127, 255, 0.3)"};
   }
 
   &:disabled {
@@ -296,23 +308,43 @@ export const Button = styled.button`
     width: 14px;
     height: 14px;
     animation: spin 1s linear infinite;
-    background: transparent;
   }
 
   @keyframes spin {
-    0% {
-      transform: rotate(0deg);
-    }
-
-    100% {
+    to {
       transform: rotate(360deg);
     }
   }
 
-  @media (max-width: 768px) {
-    padding: 10px 12px;
-    font-size: 14px;
+  .airplane-animation {
+  position: fixed;
+  top: 40%;
+  left: -100px;
+  font-size: 40px;
+  z-index: 999;
+  animation: flyAcross 2.5s ease-in-out forwards;
+  pointer-events: none;
+  opacity: 0;
+}
+
+@keyframes flyAcross {
+  0% {
+    transform: translate(0, -50%) rotate(-10deg);
+    opacity: 0;
   }
+  10% {
+    opacity: 1;
+  }
+  50% {
+    transform: translate(50vw, -50%) rotate(0deg);
+    opacity: 1;
+  }
+  100% {
+    transform: translate(120vw, -30%) rotate(10deg);
+    opacity: 0;
+  }
+}
+
 `;
 
 
