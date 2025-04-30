@@ -118,7 +118,7 @@ export const ContainerForm = styled.div`
   padding: 50px 25px 25px;
 
   @media (max-width: 768px) {
-    padding: 20px 30px;
+    padding: 20px 20px;
   }
 `
 export const Form = styled.form`
