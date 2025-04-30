@@ -1,9 +1,10 @@
-import React, { useState, useRef } from "react";
+import React, { useState, useRef, useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useLocation } from "react-router-dom";
 import { getLanguageFromPath } from "../services/languageService";
-import { handlePlanTrip } from "../services/planTripService";
 import { exportPDF } from "../services/pdfService";
+import { submitTripPlan } from "../services/tripPlannerSubmitService";
+import { useFetchCoordinatesEffect } from "../services/useFetchCoordinatesEffect";
 import InterestCheckbox from "../components/InterestCheckbox";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
@@ -29,46 +30,35 @@ import {
 const TripPlannerFR = () => {
   const [destination, setDestination] = useState("");
   const [days, setDays] = useState("");
-  const [interests, setInterests] = useState("");
+  const [interests, setInterests] = useState([]);
   const [tripPlan, setTripPlan] = useState("");
   const [loading, setLoading] = useState(false);
   const [customInterest, setCustomInterest] = useState("");
+  const [mapPoints, setMapPoints] = useState([]);
+  const [daysError, setDaysError] = useState(false);
   const planRef = useRef(null);
   const navigate = useNavigate();
   const location = useLocation();
   const language = getLanguageFromPath(location.pathname);
-  const [daysError, setDaysError] = useState(false);
 
   const handleSubmit = (e) => {
-    e.preventDefault();
-
-    if (!days || parseInt(days) < 1) {
-      setDaysError(true);
-      return;
-    }
-
-    setDaysError(false);
-
-    let allInterests = [...interests];
-    if (customInterest.trim() !== "") {
-      const cleaned = customInterest.trim();
-      if (!allInterests.includes(cleaned)) {
-        allInterests.push(cleaned);
-      }
-      setCustomInterest("");
-    }
-
-    handlePlanTrip({
-      destination,
+    submitTripPlan({
+      e,
       days,
-      interests: allInterests,
+      interests,
+      customInterest,
+      setDaysError,
+      setCustomInterest,
+      destination,
       language,
       setTripPlan,
       setLoading,
       planRef,
-      event: e,
     });
   };
+
+  useFetchCoordinatesEffect(tripPlan, setMapPoints);
+
 
   return (
     <>
