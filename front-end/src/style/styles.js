@@ -59,10 +59,11 @@ export const ContentWrapper = styled.div`
 `;
 
 export const ContainerGeneral = styled.div`
-  height: 100vh;
+  min-height: 100vh;
   background-image: url("/img/img-travel-ia-banner.png");
   background-size: cover;
   background-repeat: no-repeat;
+  background-position: center;
 
   @media (max-width: 768px) {
     width: 100%;
@@ -83,15 +84,11 @@ export const Container = styled.div`
   background-repeat: no-repeat;
   margin: 0 auto;
   text-align: center;
-  //padding: 60px 0;
 
   @media (max-width: 768px) {
     display: flex;
     flex-direction: column;
-    //justify-content: flex-end;
     min-height: unset;
-    //padding: 33px 0;
-
   }
 `;
 
