@@ -30,7 +30,7 @@ function remember(key, plan) {
   if (cache.size > 100) cache.delete(cache.keys().next().value);
 }
 
-async function generateItinerary(trip, signal, onLine) {
+async function streamModel(trip, signal, requestedModel, onLine) {
   client ??= new OpenAI({
     baseURL: "https://openrouter.ai/api/v1",
     apiKey: process.env.OPENROUTER_API_KEY,
@@ -41,18 +41,17 @@ async function generateItinerary(trip, signal, onLine) {
     },
   });
   const start = performance.now();
-  const models = getModels();
+
   const stream = await client.chat.completions.create({
-    model: models[0],
-    models,
+    model: requestedModel,
     stream: true,
     provider: { sort: "latency" },
-    reasoning: { enabled: false },
+    ...(requestedModel === FREE_MODEL && { reasoning: { enabled: false } }),
     messages: [
       { role: "system", content: getPromptByLanguage(trip.language) },
       { role: "user", content: JSON.stringify(trip) },
     ],
-  }, { signal });
+  }, { signal, timeout: requestedModel === FREE_ROUTER ? 30000 : 15000 });
 
   let pending = "";
   let plan = "";
@@ -81,6 +80,22 @@ async function generateItinerary(trip, signal, onLine) {
   if (pending) emit(pending);
   console.info("Itinerary timing", { model, days: trip.days, firstLineMs, totalMs: Math.round(performance.now() - start) });
   return plan.trim();
+}
+
+async function generateItinerary(trip, signal, onLine) {
+  const [primary, fallback] = getModels();
+  let visible = false;
+  const progress = line => {
+    if (line.trim()) visible = true;
+    onLine(line);
+  };
+  try {
+    return await streamModel(trip, signal, primary, progress);
+  } catch (error) {
+    if (visible || signal.aborted || [401, 402, 403].includes(error.status)) throw error;
+    console.warn("Switching free itinerary model", primary, error.status || error.name);
+    return streamModel(trip, signal, fallback, onLine);
+  }
 }
 
 module.exports = { cachedPlan, remember, generateItinerary, getModels };

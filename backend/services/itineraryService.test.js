@@ -16,8 +16,10 @@ test("stream the first day before completion, reuse finished plans and discard i
   const gate = new Promise(resolve => { resume = resolve; });
   t.after(resume);
   let interrupt = false;
+  let rejectPrimary = false;
   const ai = t.mock.method(Completions.prototype, "create", async function* (request) {
-    assert.ok(request.models.every(m => m.endsWith(":free") || m === "openrouter/free"));
+    assert.ok(request.model.endsWith(":free") || request.model === "openrouter/free");
+    if (rejectPrimary && request.model !== "openrouter/free") throw Object.assign(new Error("Busy"), { status: 429 });
     yield { choices: [{ delta: { content: "## Dia 1 — Centro\n" } }] };
     await gate;
     yield { choices: [{ delta: { content: "Visite [[Mus" } }] };
@@ -58,4 +60,8 @@ test("stream the first day before completion, reuse finished plans and discard i
   assert.equal(retry.status, 200);
   assert.ok((await retry.json()).plan);
   assert.equal(ai.mock.callCount(), 3);
+  rejectPrimary = true;
+  const fallback = await post({ ...trip, interests: "Art" }, "application/json");
+  assert.ok((await fallback.json()).plan);
+  assert.equal(ai.mock.callCount(), 5);
 });

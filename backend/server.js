@@ -70,7 +70,9 @@ app.post("/plan-trip", async (req, res) => {
     if (error.status === 429) status = 429;
     console.error("Itinerary generation failed", error.status || error.name);
     if (res.headersSent) return res.end(JSON.stringify({ error: status }) + "\n");
-    res.status(status).json({ error: "Planner unavailable" });
+    const providerStatus = Number.isInteger(error.status) ? error.status : undefined;
+    const kind = providerStatus ? "provider_http" : error.name === "APIConnectionError" ? "provider_connection" : "provider_stream";
+    res.status(status).json({ error: "Planner unavailable", kind, providerStatus });
   } finally {
     clearTimeout(timeout);
     res.removeListener("close", disconnect);
