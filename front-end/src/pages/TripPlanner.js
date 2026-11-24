@@ -1,210 +1,147 @@
-import React, { useState, useRef, useEffect } from "react";
-import { useNavigate } from "react-router-dom";
-import { useLocation } from "react-router-dom";
-import { getLanguageFromPath } from "../services/languageService";
-import { exportPDF } from "../services/pdfService";
-import { submitTripPlan } from "../services/tripPlannerSubmitService";
-import { useFetchCoordinatesEffect } from "../services/useFetchCoordinatesEffect";
-import InterestCheckbox from "../components/InterestCheckbox";
+import { useEffect, useRef, useState } from "react";
+import { FiArrowRight, FiArrowUpRight, FiBookOpen, FiCamera, FiCalendar, FiCoffee, FiCompass, FiFeather, FiFlag, FiMap, FiMapPin, FiMinus, FiPlus, FiSun, FiSunrise, FiX } from "react-icons/fi";
+import { LuSparkles } from "react-icons/lu";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
-import {
-  PageWrapper,
-  ContainerGeneral,
-  ContainerForm,
-  ContentWrapper,
-  Container,
-  Title,
-  Form,
-  FormRow,
-  Label,
-  Input,
-  InputWrapper,
-  ErrorMessage,
-  CheckboxGroup,
-  ContainerButton,
-  Button,
-  PlanContainer
-} from "../style/styles";
+import Itinerary from "../components/Itinerary";
+import { requestPlan } from "../services/planTripService";
+import { copy } from "./plannerCopy";
 
-const TripPlanner = () => {
+const themeIcons = [FiCamera, FiCoffee, FiCompass, FiSun, FiBookOpen, FiFeather, FiFlag, FiSunrise];
+const ideaImages = ["rio", "kyoto", "paris"];
+const pics = (process.env.PUBLIC_URL || "") + "/img/";
+
+export default function TripPlanner({ language }) {
+  const t = copy[language];
   const [destination, setDestination] = useState("");
-  const [days, setDays] = useState("");
-  const [interests, setInterests] = useState([]);
-  const [tripPlan, setTripPlan] = useState("");
+  const [days, setDays] = useState("3");
+  const [themes, setThemes] = useState([]);
+  const [extra, setExtra] = useState([]);
+  const [draft, setDraft] = useState("");
+  const [editing, setEditing] = useState(false);
   const [loading, setLoading] = useState(false);
-  const [customInterest, setCustomInterest] = useState("");
-  const [mapPoints, setMapPoints] = useState([]);
-  const [daysError, setDaysError] = useState(false);
-  const planRef = useRef(null);
-  const navigate = useNavigate();
-  const location = useLocation();
-  const language = getLanguageFromPath(location.pathname);
+  const [error, setError] = useState("");
+  const [trip, setTrip] = useState(null);
+  const resultRef = useRef(null);
+  const destinationRef = useRef(null);
+  const request = useRef(null);
+  useEffect(() => () => request.current?.abort(), []);
+  useEffect(() => {
+    document.documentElement.lang = language === "PT-BR" ? "pt-BR" : language.toLowerCase();
+    document.title = "Travel IA · " + t.title;
+  }, [language, t]);
+  useEffect(() => {
+    if (trip) {
+      resultRef.current?.focus({ preventScroll: true });
+      resultRef.current?.scrollIntoView?.({ block: "start" });
+    }
+  }, [trip]);
 
-  const handleSubmit = (e) => {
-    submitTripPlan({
-      e,
-      days,
-      interests,
-      customInterest,
-      setDaysError,
-      setCustomInterest,
-      destination,
-      language,
-      setTripPlan,
-      setLoading,
-      planRef,
-    });
-  };
+  function addInterest() {
+    const interest = draft.trim();
+    if (interest && !extra.includes(interest)) setExtra([...extra, interest]);
+    setDraft("");
+    setEditing(false);
+  }
 
-  useFetchCoordinatesEffect(tripPlan, setMapPoints);
+  async function generate(event) {
+    event.preventDefault();
+    if (request.current) return;
+    if (!destination.trim()) {
+      setError("invalid");
+      destinationRef.current.focus();
+      return;
+    }
+    const controller = new AbortController();
+    request.current = controller;
+    const timer = setTimeout(() => controller.abort(), 100000);
+    const interests = [...new Set([...themes.map(i => t.choices[i]), ...extra, draft.trim()].filter(Boolean))].join(", ");
+    const inputs = { destination: destination.trim(), days: Number(days), interests, language };
+    setLoading(true);
+    setError("");
+    try {
+      const plan = await requestPlan(inputs, controller.signal);
+      setTrip({ ...inputs, plan });
+    } catch (err) {
+      setError(err.name === "AbortError" ? "timeout" : ["invalid", "busy", "timeout"].includes(err.message) ? err.message : "offline");
+    } finally {
+      clearTimeout(timer);
+      request.current = null;
+      setLoading(false);
+    }
+  }
+
+  function chooseCity(city) {
+    setDestination(city);
+    setError("");
+    destinationRef.current.focus();
+    destinationRef.current.scrollIntoView?.({ block: "center" });
+  }
 
   return (
-    <>
-      <PageWrapper>
-        <ContentWrapper>
-          <Container>
-          <Header loading={loading} title="Planeje sua Viagem" />
-            <ContainerGeneral>
-              <ContainerForm>
-                <Form onSubmit={handleSubmit}>
-                  <FormRow>
-                    <Label>Destino:</Label>
-                    <Input
-                      type="text"
-                      placeholder="Ex: Paris"
-                      value={destination}
-                      onChange={(e) => setDestination(e.target.value)}
-                      required
-                    />
-                  </FormRow>
-
-                  <FormRow>
-                    <Label>Dias:</Label>
-                    <InputWrapper>
-                      <Input
-                        type="number"
-                        placeholder="Ex: 5"
-                        value={days}
-                        onChange={(e) => setDays(e.target.value)}
-                        min="1"
-                        $error={daysError}
-                      />
-                      {daysError && (
-                        <ErrorMessage>
-                          O número de dias deve ser no mínimo 1.
-                        </ErrorMessage>
-                      )}
-                    </InputWrapper>
-                  </FormRow>
-
-                  <FormRow $variant="secondary">
-                    <Label>Interesses:</Label>
-                    <CheckboxGroup>
-                      {[
-                        "Férias",
-                        "Turismo",
-                        "Culinária",
-                        "Aventura",
-                        "Cultura",
-                        "Praia",
-                        "História",
-                        "Parques"
-                      ]
-                        .sort((a, b) => a.localeCompare(b))
-                        .map((interest) => (
-                          <InterestCheckbox
-                            key={interest}
-                            interest={interest}
-                            checked={interests.includes(interest)}
-                            onChange={(e) => {
-                              if (e.target.checked) {
-                                setInterests([...interests, interest]);
-                              } else {
-                                setInterests(interests.filter((i) => i !== interest));
-                              }
-                            }}
-                          />
-                        ))}
-                    </CheckboxGroup>
-                    <InputWrapper style={{ marginTop: "10px" }}>
-                      <Input
-                        type="text"
-                        placeholder="Adicionar interesse personalizado"
-                        value={customInterest}
-                        onChange={(e) => setCustomInterest(e.target.value)}
-                        onKeyDown={(e) => {
-                          if (
-                            e.key === "Enter" &&
-                            customInterest.trim() !== ""
-                          ) {
-                            const cleaned = customInterest.trim();
-                            if (!interests.includes(cleaned)) {
-                              setInterests([...interests, cleaned]);
-                            }
-                            setCustomInterest("");
-                            e.preventDefault();
-                          }
-                        }}
-                      />
-                    </InputWrapper>
-                  </FormRow>
-
-                  <Button type="submit" disabled={loading}>
-                    {loading ? (
-                      <>
-                        <span className="loader" /> Gerando plano...
-                      </>
-                    ) : (
-                      "Gerar Plano"
-                    )}
-                  </Button>
-                </Form>
-              </ContainerForm>
-            </ContainerGeneral>
-
-          </Container>
-        </ContentWrapper>
-        {tripPlan && (
-          <>
-            <PlanContainer
-              id="trip-plan"
-              ref={planRef}
-              dangerouslySetInnerHTML={{
-                __html: tripPlan
-                  .replace(/\n/g, "<br>")
-                  // 🆕 Transforma links do tipo [Texto](URL) em <a href="URL">Texto</a>
-                  .replace(/\[([^\]]+)\]\((https?:\/\/[^\s)]+)\)/g, '<a href="$2" target="_blank" rel="noopener noreferrer">$1</a>')
-                  // Substitui o [Google Maps](url) por um link com texto fixo
-                  .replace(/\[Google Maps\]\((.*?)\)/g, '<a href="$1" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>')
-                  // Substitui locais com 📍 **Lugar** pelo link do Wikipedia + Google Maps
-                  .replace(/📍 \*\*(.*?)\*\*/g, (match, place) => {
-                    const encodedPlace = encodeURIComponent(place);
-                    return `📍 <a href="https://pt.wikipedia.org/wiki/${encodedPlace}" target="_blank" rel="noopener noreferrer"><strong>${place}</strong></a> - <a href="https://www.google.com/maps/search/?api=1&query=${encodedPlace}" target="_blank" rel="noopener noreferrer">Endereço Google Maps</a>`;
-                  })
-                  // Aplica negrito em **Texto**
-                  .replace(/\*\*(.*?)\*\*/g, "<strong>$1</strong>")
-              }}
-            />
-
-            <ContainerButton $variant="secondary">
-              <Button
-                onClick={() =>
-                  exportPDF(
-                    "trip-plan",
-                    `meu-roteiro-${destination.toLowerCase().replace(/\s+/g, "-")}-${days}dias.pdf`
-                  )
-                }
-              >
-                📄 Baixar Roteiro em PDF
-              </Button>
-            </ContainerButton>
-          </>
-        )}
-      </PageWrapper>
+    <div id="top">
+      <Header t={t} language={language} loading={loading} />
+      <main className="shell">
+        <section className="hero">
+          <img className="hero-photo" src={pics + "dolomites.jpg"} alt="" fetchpriority="high" />
+          <div className="hero-content">
+            <span className="hero-tag"><LuSparkles />{t.eyebrow}</span>
+            <h1>{t.hero[0]}<br /><em>{t.hero[1]}</em></h1>
+            <p>{t.intro}</p>
+          </div>
+          <div className="photo-location"><FiMapPin />{t.photo}</div>
+        </section>
+        <div className="workspace">
+          <section id="planner" className="card planner">
+            <div className="section-heading"><span className="section-icon"><FiMap /></span>
+              <div><h2>{t.form}</h2><p>{t.formIntro}</p></div>
+            </div>
+            <form onSubmit={generate}>
+              <fieldset disabled={loading} className="form-fields">
+                <div className="trip-fields">
+                  <div><label htmlFor="destination">{t.destination}</label>
+                    <div className="input-box"><FiMapPin /><input ref={destinationRef} id="destination" required maxLength="150"
+                      value={destination} onChange={e => setDestination(e.target.value)} placeholder={t.placeholder} /></div>
+                  </div>
+                  <div><label htmlFor="days">{t.duration}</label>
+                    <div className="stepper">
+                      <button type="button" aria-label={t.less} disabled={Number(days) <= 1} onClick={() => setDays(String(Number(days) - 1))}><FiMinus /></button>
+                      <div className="day-value"><FiCalendar /><input id="days" type="number" required min="1" max="30" value={days} onChange={e => setDays(e.target.value)} style={{width: Math.max(days.length, 1) + "ch"}} />
+                        <label htmlFor="days">{Number(days) === 1 ? t.day : t.days}</label></div>
+                      <button type="button" aria-label={t.more} disabled={Number(days) >= 30} onClick={() => setDays(String(Number(days) + 1))}><FiPlus /></button>
+                    </div>
+                  </div>
+                </div>
+                <fieldset className="themes"><legend>{t.interests} <small>{t.optional}</small></legend>
+                  <div className="chips">
+                    {t.choices.map((name, i) => {
+                      const Icon = themeIcons[i];
+                      return <button type="button" key={i} aria-pressed={themes.includes(i)} onClick={() => setThemes(themes.includes(i) ? themes.filter(v => v !== i) : [...themes, i])}><Icon />{name}</button>;
+                    })}
+                    {extra.map(name => <button type="button" key={name} aria-label={t.remove + " " + name} className="chosen" onClick={() => setExtra(extra.filter(v => v !== name))}>{name}<FiX /></button>)}
+                  </div>
+                </fieldset>
+                {editing ? <div className="custom-field"><input autoFocus maxLength="100" aria-label={t.custom} placeholder={t.customHint} value={draft} onChange={e => setDraft(e.target.value)}
+                  onKeyDown={e => { if (e.key === "Enter") { e.preventDefault(); addInterest(); } }} />
+                  <button type="button" onClick={addInterest}>{t.add}</button></div>
+                  : <button type="button" className="custom-toggle" onClick={() => setEditing(true)}><FiPlus />{t.custom}</button>}
+                {error && <p className="error" role="alert">{t[error]}</p>}
+                <button className="generate" type="submit"><LuSparkles />{loading ? t.loading : t.create}<FiArrowRight /></button>
+              </fieldset>
+              <span className="sr-only" role="status">{loading ? t.loading : ""}</span>
+            </form>
+          </section>
+          <aside id="inspiration" className="inspiration card">
+            <span className="kicker"><FiCompass />{t.ideas}</span><h2>{t.ideasTitle}</h2><p>{t.ideasIntro}</p>
+            <div className="ideas-list">{ideaImages.map((image, i) => <button type="button" key={image} disabled={loading}
+              onClick={() => chooseCity(t.cities[i])} aria-label={t.choose + " " + t.cities[i]}>
+              <img src={pics + image + ".jpg"} alt="" /><span className="city-text"><small>{t.countries[i]}</small><strong>{t.cities[i]}</strong></span>
+              <span className="city-arrow"><FiArrowUpRight /></span></button>)}</div>
+          </aside>
+        </div>
+        {trip && <Itinerary trip={trip} t={copy[trip.language]} sectionRef={resultRef} />}
+      </main>
       <Footer />
-    </>
+    </div>
   );
-};
-
-export default TripPlanner;
+}

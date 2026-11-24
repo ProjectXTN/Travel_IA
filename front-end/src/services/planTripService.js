@@ -1,40 +1,16 @@
-export const handlePlanTrip = async ({
-  destination,
-  days,
-  interests,
-  language = "PT-BR",
-  setTripPlan,
-  setLoading,
-  planRef,
-  event,
-}) => {
-  event.preventDefault();
-  setLoading(true);
-
-  try {
-    const response = await fetch(`${process.env.REACT_APP_BACKEND_URL}/plan-trip`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({
-        destination,
-        days,
-        interests: Array.isArray(interests) ? interests.join(", ") : interests,
-        language
-      }),
-    });
-
-    const data = await response.json();
-    setTripPlan(data.plan);
-    setLoading(false);
-
-    // Scrolling
-    setTimeout(() => {
-      planRef.current?.scrollIntoView({ behavior: "smooth" });
-    }, 100);
-  } catch (error) {
-    console.error("Erro ao gerar plano:", error);
-    setLoading(false);
+export async function requestPlan(trip, signal) {
+  const base = (process.env.REACT_APP_BACKEND_URL || "").replace(/\/$/, "");
+  const response = await fetch(base + "/plan-trip", {
+    method: "POST",
+    headers: { "Content-Type": "application/json" },
+    body: JSON.stringify(trip),
+    signal,
+  });
+  if (!response.ok) {
+    const messages = { 400: "invalid", 429: "busy", 504: "timeout" };
+    throw new Error(messages[response.status] || "offline");
   }
-};
+  const { plan } = await response.json();
+  if (typeof plan !== "string" || !plan.trim()) throw new Error("offline");
+  return plan;
+}

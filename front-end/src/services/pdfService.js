@@ -1,4 +1,4 @@
-import html2pdf from "html2pdf.js";
+import html2pdf from "html2pdf.js/dist/html2pdf.min.js";
 
 /**
  * Exports a given DOM element to a PDF file.
@@ -21,5 +21,5 @@ export const exportPDF = (elementId = "trip-plan", fileName = "travel-itinerary.
     jsPDF:        { unit: 'in', format: 'letter', orientation: 'portrait' }
   };
 
-  html2pdf().set(options).from(element).save();
+  return html2pdf().set(options).from(element).save();
 };

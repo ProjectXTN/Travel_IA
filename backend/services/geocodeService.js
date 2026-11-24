@@ -1,26 +1,19 @@
-export const getCoordinatesFromPlaces = async (places) => {
-    const apiKey = process.env.GOOGLE_MAPS_API_KEY;
-    const results = [];
-    
-    for (const place of places) {
-        const query = place;
+async function getCoordinatesFromPlaces(places) {
+  const apiKey = process.env.GOOGLE_MAPS_API_KEY;
+  const results = [];
+  const signal = AbortSignal.timeout(15000);
+  for (const place of new Set(places)) {
+    const url = new URL("https://maps.googleapis.com/maps/api/geocode/json");
+    url.search = new URLSearchParams({ address: place, key: apiKey });
+    const response = await fetch(url, { signal });
+    if (!response.ok) throw new Error("Geocoding unavailable");
+    const data = await response.json();
+    if (data.status === "ZERO_RESULTS") continue;
+    const location = data.results?.[0]?.geometry?.location;
+    if (data.status !== "OK" || !location) throw new Error("Geocoding unavailable");
+    results.push({ name: place, lat: location.lat, lng: location.lng });
+  }
+  return results;
+}
 
-        try {
-            const response = await fetch(
-                `https://maps.googleapis.com/maps/api/geocode/json?address=${encodeURIComponent(query)}&key=${apiKey}`
-            );
-            const data = await response.json();
-
-            if (data.status === "OK" && data.results.length > 0) {
-                const location = data.results[0].geometry.location;
-                results.push({ name: place, lat: location.lat, lng: location.lng });
-            } else {
-                console.warn("No results found for:", query);
-            }
-        } catch (error) {
-            console.error("Error fetching coordinates:", error);
-        }
-    }
-
-    return results;
-};
+module.exports = { getCoordinatesFromPlaces };
