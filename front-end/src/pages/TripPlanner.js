@@ -4,7 +4,7 @@ import { LuSparkles } from "react-icons/lu";
 import Header from "../components/Header";
 import Footer from "../components/Footer";
 import Itinerary from "../components/Itinerary";
-import { requestPlan } from "../services/planTripService";
+import { requestPlan, warmPlanner } from "../services/planTripService";
 import { copy } from "./plannerCopy";
 
 const themeIcons = [FiCamera, FiCoffee, FiCompass, FiSun, FiBookOpen, FiFeather, FiFlag, FiSunrise];
@@ -23,6 +23,8 @@ export default function TripPlanner({ language }) {
   const [error, setError] = useState("");
   const [trip, setTrip] = useState(null);
   const resultRef = useRef(null);
+  const sequence = useRef(0);
+  const visibleId = trip?.id;
   const destinationRef = useRef(null);
   const request = useRef(null);
   useEffect(() => () => request.current?.abort(), []);
@@ -31,11 +33,11 @@ export default function TripPlanner({ language }) {
     document.title = "Travel IA · " + t.title;
   }, [language, t]);
   useEffect(() => {
-    if (trip) {
+    if (visibleId) {
       resultRef.current?.focus({ preventScroll: true });
       resultRef.current?.scrollIntoView?.({ block: "start" });
     }
-  }, [trip]);
+  }, [visibleId]);
 
   function addInterest() {
     const interest = draft.trim();
@@ -54,14 +56,23 @@ export default function TripPlanner({ language }) {
     }
     const controller = new AbortController();
     request.current = controller;
-    const timer = setTimeout(() => controller.abort(), 100000);
+    let timer;
+    function extendDeadline() {
+      clearTimeout(timer);
+      timer = setTimeout(() => controller.abort(), 120000);
+    }
+    extendDeadline();
+    const id = ++sequence.current;
     const interests = [...new Set([...themes.map(i => t.choices[i]), ...extra, draft.trim()].filter(Boolean))].join(", ");
     const inputs = { destination: destination.trim(), days: Number(days), interests, language };
     setLoading(true);
     setError("");
     try {
-      const plan = await requestPlan(inputs, controller.signal);
-      setTrip({ ...inputs, plan });
+      const plan = await requestPlan(inputs, controller.signal, partial => {
+        extendDeadline();
+        setTrip({ ...inputs, id, plan: partial, complete: false });
+      });
+      setTrip({ ...inputs, id, plan, complete: true });
     } catch (err) {
       setError(err.name === "AbortError" ? "timeout" : ["invalid", "busy", "timeout"].includes(err.message) ? err.message : "offline");
     } finally {
@@ -96,7 +107,7 @@ export default function TripPlanner({ language }) {
             <div className="section-heading"><span className="section-icon"><FiMap /></span>
               <div><h2>{t.form}</h2><p>{t.formIntro}</p></div>
             </div>
-            <form onSubmit={generate}>
+            <form onSubmit={generate} onFocus={warmPlanner}>
               <fieldset disabled={loading} className="form-fields">
                 <div className="trip-fields">
                   <div><label htmlFor="destination">{t.destination}</label>
@@ -139,7 +150,7 @@ export default function TripPlanner({ language }) {
               <span className="city-arrow"><FiArrowUpRight /></span></button>)}</div>
           </aside>
         </div>
-        {trip && <Itinerary trip={trip} t={copy[trip.language]} sectionRef={resultRef} />}
+        {trip && <Itinerary trip={trip} t={copy[trip.language]} error={error} sectionRef={resultRef} />}
       </main>
       <Footer />
     </div>

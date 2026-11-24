@@ -12,7 +12,7 @@ npm ci
 node server.js
 ```
 
-Configure `OPENROUTER_API_KEY` em `backend/.env`. A variável opcional `OPENROUTER_MODEL` escolhe o modelo. O padrão é `openrouter/free`. A API escuta na porta 5000, configurável por `PORT`. A chave `GOOGLE_MAPS_API_KEY` só é usada por clientes que chamam `/api/geocode`.
+Configure `OPENROUTER_API_KEY` em `backend/.env`. O modelo preferido é `nvidia/nemotron-3.5-lightning:free`, com `openrouter/free` como reserva. Para priorizar outra variante gratuita, defina `OPENROUTER_MODEL` com um ID terminado em `:free`. O site apresenta o roteiro por linhas durante a geração. O servidor reaproveita pedidos idênticos concluídos por 30 minutos, enquanto a instância estiver ativa. A API escuta na porta 5000, configurável por `PORT`. A chave `GOOGLE_MAPS_API_KEY` só é usada por clientes que chamam `/api/geocode`.
 
 Em outro terminal na raiz, inicie o site.
 

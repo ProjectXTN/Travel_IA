@@ -18,7 +18,7 @@ test("a destination suggestion and custom interest produce a day-by-day plan", a
   fireEvent.change(screen.getByLabelText("Outro interesse"), { target: { value: "Jazz" } });
   fireEvent.click(screen.getByRole("button", { name: "Gerar meu roteiro" }));
   expect(await screen.findByRole("heading", { name: "Dia 1 — Centro" })).toBeInTheDocument();
-  expect(JSON.parse(global.fetch.mock.calls[0][1].body)).toEqual({
+  expect(JSON.parse(global.fetch.mock.calls.find(([url]) => url.endsWith("/plan-trip"))[1].body)).toEqual({
     destination: "Paris", days: 3, language: "PT-BR", interests: "Cultura, Jazz",
   });
   expect(screen.getByRole("link", { name: "Museu" })).toHaveAttribute("href", "https://example.com/museu");
@@ -44,4 +44,30 @@ test("a rate-limited request shows an error and can be retried", async () => {
   await waitFor(() => expect(screen.getByRole("alert")).toHaveTextContent("alta demanda"));
   expect(screen.getByRole("button", { name: "Gerar meu roteiro" })).toBeEnabled();
   expect(screen.getByLabelText("Destino")).toHaveValue("Salvador");
+});
+
+test("streams days into the page and withholds the PDF until completion", async () => {
+  const { TextDecoder, TextEncoder } = require("util");
+  const savedDecoder = global.TextDecoder;
+  global.TextDecoder = TextDecoder;
+  const encode = text => new TextEncoder().encode(text);
+  let finish;
+  const lastChunk = new Promise(resolve => { finish = resolve; });
+  const read = jest.fn().mockResolvedValueOnce({ value: encode(JSON.stringify({ text: "## Dia 1 — Centro\n" }) + "\n") })
+    .mockReturnValueOnce(lastChunk);
+  global.fetch = jest.fn().mockResolvedValue({
+    ok: true, headers: { get: () => "application/x-ndjson" },
+    body: { getReader: () => ({ read, releaseLock() {} }) },
+  });
+  try {
+    render(<App />);
+    fireEvent.change(screen.getByLabelText("Destino"), { target: { value: "Paris" } });
+    fireEvent.click(screen.getByRole("button", { name: "Gerar meu roteiro" }));
+    expect(await screen.findByRole("heading", { name: "Dia 1 — Centro" })).toBeInTheDocument();
+    expect(screen.getByRole("button", { name: "Baixar PDF" })).toBeDisabled();
+    finish({ value: encode('{"done":true}\n') });
+    await waitFor(() => expect(screen.getByRole("button", { name: "Baixar PDF" })).toBeEnabled());
+  } finally {
+    global.TextDecoder = savedDecoder;
+  }
 });

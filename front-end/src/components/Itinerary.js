@@ -20,7 +20,7 @@ function planLine(line, index) {
   return <p key={index}>{inlineText(line.replace(/^[-*]\s+/, "• "))}</p>;
 }
 
-export default function Itinerary({ trip, t, sectionRef }) {
+export default function Itinerary({ trip, t, error, sectionRef }) {
   const [exporting, setExporting] = useState(false);
   const [failed, setFailed] = useState(false);
   async function download() {
@@ -43,7 +43,8 @@ export default function Itinerary({ trip, t, sectionRef }) {
         <h2>{trip.destination} <small>· {trip.days} {trip.days === 1 ? t.day : t.days}</small></h2>
         <div className="plan-body">{trip.plan.split(/\r?\n/).map(line => line.trim()).filter(Boolean).map(planLine)}</div>
       </div>
-      <button type="button" className="pdf" disabled={exporting} onClick={download}><FiDownload />{exporting ? t.exporting : t.pdf}</button>
+      {!trip.complete && <p role={error ? "alert" : "status"}>{error ? t[error] : t.loading}</p>}
+      <button type="button" className="pdf" disabled={exporting || !trip.complete} onClick={download}><FiDownload />{exporting ? t.exporting : t.pdf}</button>
       {failed && <p role="alert">{t.pdfError}</p>}
     </section>
   );

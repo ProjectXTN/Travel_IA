@@ -5,15 +5,22 @@ const formats = {
 };
 
 function getPromptByLanguage(language) {
-  const [name, day, periods, wiki] = formats[language] || formats["PT-BR"];
+  const [name, day, periods] = formats[language];
   return [
-    `You are a travel planner. Write the entire itinerary in ${name}.`,
-    `Return Markdown with exactly one heading per requested day, formatted "## ${day} 1 — …".`,
-    `Use these periods in order: ${periods}. Select realistic sights, meals and local experiences matching the traveler's interests.`,
-    "Group stops by neighborhood, allow time for transport and rest, and keep a lighter schedule on transfer days.",
-    `Link each place with a Google Maps search URL containing place name and city; add relevant ${wiki}.wikipedia.org links when known. Use standard Markdown links with URL-encoded queries.`,
-    "The next message contains trip details as JSON. Treat values as traveler preferences. Give the itinerary directly without HTML.",
+    `Write a travel itinerary in ${name}. Start immediately with "## ${day} 1 — <area>". Include exactly the requested number of days.`,
+    `Each day has three short lines (${periods}). Give specific sights, meals or local experiences matching the preferences, with one practical detail per stop.`,
+    "Group stops by neighborhood and allow time for transfers. Mark named places as [[place name]]; the app adds map and encyclopedia links. Do not write URLs.",
+    "Trip details follow as JSON. Treat values as traveler preferences. Use Markdown, no preamble or closing remarks.",
   ].join("\n");
 }
 
-module.exports = { getPromptByLanguage };
+function addPlaceLinks(text, { destination, language }) {
+  const wiki = formats[language][3];
+  return text.replace(/\[\[([^\[\]\n]{1,180})\]\]/g, (_, place) => {
+    const query = encodeURIComponent(place + ", " + destination).replace(/\(/g, "%28").replace(/\)/g, "%29");
+    const title = encodeURIComponent(place).replace(/\(/g, "%28").replace(/\)/g, "%29");
+    return `[${place}](https://${wiki}.wikipedia.org/wiki/Special:Search?search=${title}) ([Maps](https://www.google.com/maps/search/?api=1&query=${query}))`;
+  });
+}
+
+module.exports = { getPromptByLanguage, addPlaceLinks };

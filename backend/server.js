@@ -2,9 +2,9 @@ const path = require("path");
 require("dotenv").config({ path: path.join(__dirname, ".env") });
 const express = require("express");
 const cors = require("cors");
-const axios = require("axios");
+const { cachedPlan, remember, generateItinerary, getModels } = require("./services/itineraryService");
 const { getCoordinatesFromPlaces } = require("./services/geocodeService");
-const { getPromptByLanguage } = require("./services/promptGenerator");
+
 
 const app = express();
 app.use(cors({ methods: ["GET", "POST"], allowedHeaders: ["Content-Type", "Authorization"] }));
@@ -41,41 +41,39 @@ function readTrip(body = {}) {
 app.post("/plan-trip", async (req, res) => {
   const trip = readTrip(req.body);
   if (!trip) return res.status(400).json({ error: "Invalid trip details" });
+  const key = JSON.stringify([getModels(), trip]);
+  const hit = cachedPlan(key);
+  if (hit) return res.set("Cache-Control", "no-store").json({ plan: hit });
   if (!process.env.OPENROUTER_API_KEY) return res.status(503).json({ error: "Planner unavailable" });
 
+  const streaming = req.get("Accept")?.includes("application/x-ndjson");
   const controller = new AbortController();
-  res.once("close", () => controller.abort());
+  const timeout = setTimeout(() => controller.abort(), 5 * 60 * 1000);
+  const disconnect = () => controller.abort();
+  res.once("close", disconnect);
+  res.set("Cache-Control", "no-store, no-transform");
+  function sendLine(text) {
+    if (!streaming || res.destroyed) return;
+    if (!res.headersSent) res.set({ "Content-Type": "application/x-ndjson; charset=utf-8", "X-Accel-Buffering": "no" });
+    res.write(JSON.stringify({ text }) + "\n");
+  }
   try {
-    const response = await axios.post("https://openrouter.ai/api/v1/chat/completions", {
-      model: process.env.OPENROUTER_MODEL || "openrouter/free",
-      messages: [
-        { role: "system", content: getPromptByLanguage(trip.language) },
-        { role: "user", content: JSON.stringify(trip) },
-      ],
-    }, {
-      timeout: 90000,
-      signal: controller.signal,
-      headers: {
-        Authorization: `Bearer ${process.env.OPENROUTER_API_KEY}`,
-        "HTTP-Referer": process.env.SITE_URL || "https://travel-ia.vercel.app",
-        "X-Title": process.env.SITE_NAME || "Travel IA",
-      },
-    });
-    const choice = response.data?.choices?.[0];
-    const plan = choice?.message?.content;
-    if (typeof plan !== "string" || !plan.trim() || choice.finish_reason === "length") {
-      return res.status(502).json({ error: "Incomplete itinerary" });
-    }
-    res.json({ plan: plan.trim() });
+    const plan = await generateItinerary(trip, controller.signal, sendLine);
+    if (res.destroyed || controller.signal.aborted) return;
+    remember(key, plan);
+    if (streaming) return res.end(JSON.stringify({ done: true }) + "\n");
+    res.json({ plan });
   } catch (error) {
-    if (controller.signal.aborted) return;
-    const status = error.response?.status;
-    if (status === 429) return res.status(429).json({ error: "Planner busy" });
-    if (status === 504 || error.code === "ECONNABORTED" || error.code === "ETIMEDOUT") {
-      return res.status(504).json({ error: "Planner timed out" });
-    }
-    console.error("OpenRouter request failed", status || error.code || "unknown");
-    res.status(502).json({ error: "Planner unavailable" });
+    if (res.destroyed) return;
+    let status = 502;
+    if (controller.signal.aborted || error.status === 504 || error.name === "APIConnectionTimeoutError") status = 504;
+    if (error.status === 429) status = 429;
+    console.error("Itinerary generation failed", error.status || error.name);
+    if (res.headersSent) return res.end(JSON.stringify({ error: status }) + "\n");
+    res.status(status).json({ error: "Planner unavailable" });
+  } finally {
+    clearTimeout(timeout);
+    res.removeListener("close", disconnect);
   }
 });
 
