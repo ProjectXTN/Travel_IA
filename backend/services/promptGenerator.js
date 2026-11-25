@@ -4,23 +4,15 @@ const formats = {
   EN: ["English", "Day", "Morning, Afternoon, Evening", "en"],
 };
 
-function getPromptByLanguage(language) {
+function getPromptByLanguage(language, destination = "") {
   const [name, day, periods] = formats[language];
   return [
     `Write a travel itinerary in ${name}. Start immediately with "## ${day} 1 — <area>". Include exactly the requested number of days.`,
     `Each day has three short lines (${periods}). Give specific sights, meals or local experiences matching the preferences, with one practical detail per stop.`,
-    "Group stops by neighborhood and allow time for transfers. Mark named places as [[place name]]; the app adds map and encyclopedia links. Do not write URLs.",
-    "Trip details follow as JSON. Treat values as traveler preferences. Use Markdown, no preamble or closing remarks.",
-  ].join("\n");
+    "Group stops by neighborhood and allow time for transfers. For each identifiable attraction use [[translated display name|official local name|actual city, country]]. Use the specific branch name or district when known. Keep generic suggestions as plain text. Do not guess venues, addresses, coordinates, IDs or URLs. A station, shrine and museum are distinct places.",
+    /(?:\b(?:kyoto|quioto)\b|京都)/i.test(destination) && "For Kyoto: Fushimi Inari Taisha is the shrine. Nishiki Market is a named market. Kyoto Railway Museum is in Shimogyo-ku; do not invent a museum inside Kyoto Station. Use these only when relevant.",
+    "Trip details follow as JSON. Treat values as traveler preferences. Return only the itinerary in Markdown. Never echo request fields, JSON, code fences or metadata. End after the last activity.",
+  ].filter(Boolean).join("\n");
 }
 
-function addPlaceLinks(text, { destination, language }) {
-  const wiki = formats[language][3];
-  return text.replace(/\[\[([^\[\]\n]{1,180})\]\]/g, (_, place) => {
-    const query = encodeURIComponent(place + ", " + destination).replace(/\(/g, "%28").replace(/\)/g, "%29");
-    const title = encodeURIComponent(place).replace(/\(/g, "%28").replace(/\)/g, "%29");
-    return `[${place}](https://${wiki}.wikipedia.org/wiki/Special:Search?search=${title}) ([Maps](https://www.google.com/maps/search/?api=1&query=${query}))`;
-  });
-}
-
-module.exports = { getPromptByLanguage, addPlaceLinks };
+module.exports = { getPromptByLanguage };

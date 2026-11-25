@@ -23,7 +23,7 @@ test("stream the first day before completion, reuse finished plans and discard i
     yield { choices: [{ delta: { content: "## Dia 1 — Centro\n" } }] };
     await gate;
     yield { choices: [{ delta: { content: "Visite [[Mus" } }] };
-    yield { choices: [{ delta: { content: "ée d’Orsay]].\n## Dia 2 — Marais\nPasseie pelo bairro.\n## Dia 3 — Sena\nCaminhe junto ao rio." }, finish_reason: interrupt ? "length" : "stop" }] };
+    yield { choices: [{ delta: { content: "ée d’Orsay|Musée d’Orsay|Paris, France]].\n## Dia 2 — Marais\nPasseie pelo bairro.\n## Dia 3 — Sena\nCaminhe junto ao rio." }, finish_reason: interrupt ? "length" : "stop" }] };
   });
   const server = app.listen(0, "127.0.0.1");
   await once(server, "listening");

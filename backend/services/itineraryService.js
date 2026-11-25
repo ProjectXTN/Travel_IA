@@ -1,6 +1,8 @@
 const OpenAI = require("openai");
 const { performance } = require("node:perf_hooks");
-const { getPromptByLanguage, addPlaceLinks } = require("./promptGenerator");
+const { getPromptByLanguage } = require("./promptGenerator");
+
+const { createOutputFilter } = require("./itineraryOutput");
 
 const FREE_MODEL = "nvidia/nemotron-3.5-lightning:free";
 const FREE_ROUTER = "openrouter/free";
@@ -48,7 +50,7 @@ async function streamModel(trip, signal, requestedModel, onLine) {
     provider: { sort: "latency" },
     ...(requestedModel === FREE_MODEL && { reasoning: { enabled: false } }),
     messages: [
-      { role: "system", content: getPromptByLanguage(trip.language) },
+      { role: "system", content: getPromptByLanguage(trip.language, trip.destination) },
       { role: "user", content: JSON.stringify(trip) },
     ],
   }, { signal, timeout: requestedModel === FREE_ROUTER ? 30000 : 15000 });
@@ -58,8 +60,10 @@ async function streamModel(trip, signal, requestedModel, onLine) {
   let model;
   let firstLineMs;
   let finished = false;
+  const filter = createOutputFilter(trip);
   function emit(text) {
-    const line = addPlaceLinks(text, trip);
+    const line = filter(text);
+    if (!line) return;
     plan += line;
     if (firstLineMs === undefined && line.trim()) firstLineMs = Math.round(performance.now() - start);
     onLine(line);
@@ -76,8 +80,9 @@ async function streamModel(trip, signal, requestedModel, onLine) {
     }
     if (choice?.finish_reason === "stop") finished = true;
   }
-  if (!finished || signal.aborted || !(plan + pending).trim()) throw new Error("Interrupted itinerary");
+  if (!finished || signal.aborted) throw new Error("Interrupted itinerary");
   if (pending) emit(pending);
+  if (!plan.trim()) throw new Error("Empty itinerary");
   console.info("Itinerary timing", { model, days: trip.days, firstLineMs, totalMs: Math.round(performance.now() - start) });
   return plan.trim();
 }
