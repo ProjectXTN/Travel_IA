@@ -29,6 +29,11 @@ export default function TripPlanner({ language }) {
   const request = useRef(null);
   useEffect(() => () => request.current?.abort(), []);
   useEffect(() => {
+    warmPlanner();
+    document.addEventListener("visibilitychange", warmPlanner);
+    return () => document.removeEventListener("visibilitychange", warmPlanner);
+  }, []);
+  useEffect(() => {
     document.documentElement.lang = language === "PT-BR" ? "pt-BR" : language.toLowerCase();
     document.title = "Travel IA · " + t.title;
   }, [language, t]);

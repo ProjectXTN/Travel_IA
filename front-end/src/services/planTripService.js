@@ -3,7 +3,8 @@ const statusMessages = { 400: "invalid", 429: "busy", 504: "timeout" };
 let lastWarmup = 0;
 
 export function warmPlanner() {
-  if (!base || Date.now() - lastWarmup < 15 * 60 * 1000) return;
+  if (!base || typeof fetch !== "function" || document.visibilityState !== "visible") return;
+  if (Date.now() - lastWarmup < 15 * 60 * 1000) return;
   lastWarmup = Date.now();
   fetch(base + "/", { cache: "no-store" }).catch(() => {});
 }
