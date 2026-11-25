@@ -1,6 +1,6 @@
 import { useEffect, useMemo, useRef, useState } from "react";
 import { FiLayers, FiMapPin } from "react-icons/fi";
-import { itineraryDays, locate, walkingLines } from "../services/routeMap";
+import { itineraryDays, locate, walkingLines, visitOrder, rankedChoices } from "../services/routeMap";
 import "./TripRouteMap.css";
 
 const copy = {
@@ -27,9 +27,9 @@ function loadMap() {
 }
 
 const routeLabels = {
-  "PT-BR":["Partida","Chegada","Ver percurso completo","Linha pontilhada: ligação aproximada entre paradas. O caminho pelas ruas está indisponível."],
-  EN:["Start","Finish","Show full route","Dotted line: approximate connection between stops. Street directions are unavailable."],
-  FR:["Départ","Arrivée","Voir tout le parcours","Pointillés : liaison approximative entre les étapes. Le trajet par les rues est indisponible."]
+  "PT-BR":["Partida","Chegada","Ver percurso completo","Linha pontilhada: ligação aproximada entre paradas. O caminho pelas ruas está indisponível.","Reduzir deslocamentos","Ordem ajustada pelo tempo a pé.","Ordem ajustada pela distância aproximada.","desvio estimado em linha reta"],
+  EN:["Start","Finish","Show full route","Dotted line: approximate connection between stops. Street directions are unavailable.","Reduce travel time","Visit order adjusted by walking time.","Visit order adjusted by approximate distance.","estimated extra straight-line distance"],
+  FR:["Départ","Arrivée","Voir tout le parcours","Pointillés : liaison approximative entre les étapes. Le trajet par les rues est indisponible.","Réduire les déplacements","Ordre ajusté selon le temps de marche.","Ordre ajusté selon la distance approximative.","détour estimé à vol d’oiseau"]
 };
 function MapView({ stops, features, labels, focus }) {
   const host = useRef(null);
@@ -90,6 +90,7 @@ function MapView({ stops, features, labels, focus }) {
 }
 function DayMap({day,labels,details}) {
   const [stops,setStops]=useState(day.stops);
+  const [optimize,setOptimize]=useState(true);
   const [finding,setFinding]=useState(true);
   const [routing,setRouting]=useState(false);
   const [route,setRoute]=useState({features:[],failed:false});
@@ -111,23 +112,31 @@ function DayMap({day,labels,details}) {
     if(finding)return;
     const controller=new AbortController();
     setRouting(true);setRoute({features:[],failed:false});
-    walkingLines(stops,controller.signal).then(r=>{if(!controller.signal.aborted)setRoute(r);})
-      .catch(()=>{if(!controller.signal.aborted)setRoute({features:[],failed:true});})
+    (async()=>{
+      const result=optimize ? await visitOrder(stops,controller.signal) : {ordered:stops,approximate:false};
+      const lines=await walkingLines(result.ordered,controller.signal);
+      if(!controller.signal.aborted) setRoute({...lines,...result,input:stops,optimized:optimize});
+    })().catch(()=>{if(!controller.signal.aborted)setRoute({features:[],failed:true});})
       .finally(()=>{if(!controller.signal.aborted)setRouting(false);});
     return ()=>controller.abort();
-  },[stops,finding]);
+  },[stops,finding,optimize]);
+  const current=route.input===stops && optimize===route.optimized;
+  const ordered=current ? route.ordered : stops;
+  const changed=ordered.some((s,i)=>s!==stops[i]);
   if(!stops.length)return <p>{labels[10]}</p>;
   return <>
-    {stops.some(s=>s.point) && <MapView stops={stops} features={route.features} focus={focus} labels={labels}/>}
+    {stops.filter(s=>s.point).length>=3 && <label><input type="checkbox" checked={optimize} onChange={e=>{setOptimize(e.target.checked);setFocus(null);}}/> {details[4]}</label>}
+    {changed && <p>{details[route.approximate?6:5]}</p>}
+    {stops.some(s=>s.point) && <MapView stops={ordered} features={current?route.features:[]} focus={focus} labels={labels}/>}
     {focus && <button type="button" className="route-toggle" onClick={()=>setFocus(null)}>{details[2]}</button>}
     <p role="status">{finding ? labels[3] : routing ? labels[4] : route.failed ? details[3] : route.features.length ? labels[5] : labels[15]}</p>
-    <ol className="route-stops" aria-label={labels[12]}>{stops.map((s,i)=><li key={i}>
+    <ol className="route-stops" aria-label={labels[12]}>{ordered.map((s,i)=><li key={stops.indexOf(s)}>
       {stops.length>1 && (i===0 || i===stops.length-1) && <small>{details[i===0?0:1]}</small>}
       {s.point ? <button type="button" className="route-focus" onClick={()=>setFocus({point:s.point})}><FiMapPin/>{s.label}</button> : <strong>{s.label}</strong>}
-      {!s.point && s.checked && <><small>{labels[7]}</small>{s.choices?.length>0 && <select aria-label={labels[8]+" · "+s.label} defaultValue="" onChange={e=>{
-        const choice=s.choices[Number(e.target.value)]; if(choice)setStops(prev=>prev.map((p,k)=>k===i?{...p,point:choice.point}:p));
-      }}><option value="" disabled>{labels[8]}</option>{s.choices.map((c,j)=><option key={j} value={j}>{c.name}</option>)}</select>}</>}
-      <a href={s.url} target="_blank" rel="noreferrer">{labels[9]}</a>
+      {s.checked && <>{!s.point && <small>{labels[7]}</small>}{s.choices?.length>0 && <select aria-label={labels[8]+" · "+s.label} value={s.choiceId ?? ""} onChange={e=>{
+        const choice=s.choices[Number(e.target.value)]; if(choice){setFocus(null);setStops(prev=>prev.map(p=>p===s?{...p,point:choice.point,choiceId:Number(e.target.value)}:p));}
+      }}><option value="" disabled>{labels[8]}</option>{rankedChoices(stops,stops.indexOf(s)).map(c=><option key={c.id} value={c.id}>{c.name}{c.extra!==null && " · +"+c.extra.toFixed(1)+" km ("+details[7]+")"}</option>)}</select>}</>}
+      <a href={s.choiceId!=null ? "https://www.google.com/maps/search/?api=1&query="+[s.point[1],s.point[0]].join(",") : s.url} target="_blank" rel="noreferrer">{labels[9]}</a>
     </li>)}</ol>
     <small>{labels[13]} <a href="https://routing.openstreetmap.de/" target="_blank" rel="noreferrer">FOSSGIS / OSRM</a> · © <a href="https://www.openstreetmap.org/copyright" target="_blank" rel="noreferrer">OpenStreetMap</a></small>
   </>;

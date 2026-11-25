@@ -120,9 +120,7 @@ export async function walkingLines(stops, signal) {
   for (const points of runs) {
     const coords = points.map(p=>p.join(",")).join(";");
     if (!routes.has(coords)) {
-      const start = Math.max(Date.now(),nextRequest);
-      nextRequest = start + 1100;
-      await new Promise(resolve=>setTimeout(resolve,Math.max(0,start-Date.now())));
+      await routingSlot(signal);
       try {
         const response = await json("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+coords+
           "?overview=full&geometries=geojson&steps=false&radiuses="+points.map(()=>"200").join(";"),signal);
@@ -136,4 +134,86 @@ export async function walkingLines(stops, signal) {
     features.push(routes.get(coords));
   }
   return {features,failed};
+}
+
+function distanceKm(a,b) {
+  const radians=Math.PI/180;
+  const lat=(b[1]-a[1])*radians;
+  const lon=(b[0]-a[0])*radians;
+  const h=Math.sin(lat/2)**2+Math.cos(a[1]*radians)*Math.cos(b[1]*radians)*Math.sin(lon/2)**2;
+  return 12742*Math.asin(Math.sqrt(Math.min(1,h)));
+}
+
+export function rankedChoices(stops,index) {
+  const before=stops.slice(0,index).reverse().find(s=>s.point)?.point;
+  const after=stops.slice(index+1).find(s=>s.point)?.point;
+  return (stops[index].choices || []).map((choice,id)=>{
+    let extra=null;
+    if(before && after) extra=Math.max(0,distanceKm(before,choice.point)+distanceKm(choice.point,after)-distanceKm(before,after));
+    else if(before || after) extra=distanceKm(before || after,choice.point);
+    return {...choice,id,extra};
+  }).sort((a,b)=>a.extra-b.extra);
+}
+
+const matrices=new Map();
+async function routingSlot(signal) {
+  const start=Math.max(Date.now(),nextRequest);
+  nextRequest=start+1100;
+  await new Promise(resolve=>setTimeout(resolve,Math.max(0,start-Date.now())));
+  if(signal.aborted) throw new DOMException("Aborted","AbortError");
+}
+
+// Keep the start fixed. Compare the entire open route, including the final leg.
+function improveOrder(matrix) {
+  let order=matrix.map((_,i)=>i);
+  const cost=indices=>indices.slice(1).reduce((sum,id,i)=>sum+matrix[indices[i]][id],0);
+  let bestCost=cost(order);
+  for(let pass=0;pass<order.length;pass++) {
+    let best=order;
+    for(let from=1;from<order.length;from++) {
+      for(let to=1;to<order.length;to++) {
+        if(from===to) continue;
+        const candidate=order.slice();
+        candidate.splice(to,0,candidate.splice(from,1)[0]);
+        const score=cost(candidate);
+        if(score<bestCost*0.9999) {best=candidate;bestCost=score;}
+      }
+    }
+    if(best===order) break;
+    order=best;
+  }
+  return order;
+}
+
+export async function visitOrder(stops,signal) {
+  const ordered=stops.slice();
+  let approximate=false;
+  for(let start=0;start<stops.length;) {
+    if(!stops[start].point) {start++;continue;}
+    let end=start+1;
+    while(end<stops.length && stops[end].point) end++;
+    const run=stops.slice(start,end);
+    if(run.length>=3 && run.length<=32) {
+      const coords=run.map(s=>s.point.join(",")).join(";");
+      let matrix=matrices.get(coords);
+      if(!matrix) {
+        try {
+          await routingSlot(signal);
+          const result=await json("https://routing.openstreetmap.de/routed-foot/table/v1/driving/"+coords+
+            "?annotations=duration&radiuses="+run.map(()=>"200").join(";"),signal);
+          if(result.code!=="Ok" || result.durations?.length!==run.length ||
+            !result.durations.every(row=>row?.length===run.length && row.every(v=>Number.isFinite(v) && v>=0))) throw new Error("Incomplete matrix");
+          matrix=result.durations;
+          remember(matrices,coords,matrix);
+        } catch(error) {
+          if(signal.aborted) throw error;
+          approximate=true;
+          matrix=run.map(a=>run.map(b=>distanceKm(a.point,b.point)));
+        }
+      }
+      ordered.splice(start,run.length,...improveOrder(matrix).map(i=>run[i]));
+    }
+    start=end;
+  }
+  return {ordered,approximate};
 }

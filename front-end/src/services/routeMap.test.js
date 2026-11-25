@@ -1,4 +1,4 @@
-import { itineraryDays, positionMatches, locate, walkingLines } from "./routeMap";
+import { itineraryDays, positionMatches, locate, walkingLines, rankedChoices, visitOrder } from "./routeMap";
 
 const tripLine = (name,city) => "["+name+"](https://en.wikipedia.org/wiki/Example) ([Search Maps](https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(name+", "+city)+"))";
 afterEach(()=>{ delete global.fetch; });
@@ -40,4 +40,23 @@ test("maps the four Centro Histórico stops in prose in the original order",asyn
   expect(r.features[0].properties.approximate).toBe(true);
   expect(r.features[0].geometry.coordinates).toEqual(stops.map(s=>s.point));
   expect(days[1].stops).toEqual([]);
+});
+
+test("ranks an intermediate choice by detour and keeps its original selection ID",()=>{
+  const stops=[{point:[0,0]},{choices:[{point:[1,4]},{point:[1,0]}]},{point:[2,0]}];
+  expect(rankedChoices(stops,1).map(c=>c.id)).toEqual([1,0]);
+});
+test("keeps Copacabana first and moves Urca ahead of the fort when walking time improves",async()=>{
+  const stops=["Copacabana","Fortaleza","Urca"].map((label,i)=>({label,point:[-43.18+i/100,-22.95]}));
+  global.fetch=jest.fn().mockResolvedValue({ok:true,json:async()=>({code:"Ok",durations:[[0,75,45],[75,0,30],[45,30,0]]})});
+  const result=await visitOrder(stops,new AbortController().signal);
+  expect(result.ordered.map(s=>s.label)).toEqual(["Copacabana","Urca","Fortaleza"]);
+  expect(result.approximate).toBe(false);
+});
+test("falls back to proximity and leaves an unresolved stop in place",async()=>{
+  const stops=[{point:[0,0]},{point:[2,0]},{point:[1,0]},{choices:[]},{point:[5,0]}];
+  global.fetch=jest.fn().mockRejectedValue(new Error("offline"));
+  const result=await visitOrder(stops,new AbortController().signal);
+  expect(result.ordered).toEqual([stops[0],stops[2],stops[1],stops[3],stops[4]]);
+  expect(result.approximate).toBe(true);
 });
