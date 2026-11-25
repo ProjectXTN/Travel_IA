@@ -26,6 +26,11 @@ function loadMap() {
   return library;
 }
 
+const routeLabels = {
+  "PT-BR":["Partida","Chegada","Ver percurso completo","Linha pontilhada: ligação aproximada entre paradas. O caminho pelas ruas está indisponível."],
+  EN:["Start","Finish","Show full route","Dotted line: approximate connection between stops. Street directions are unavailable."],
+  FR:["Départ","Arrivée","Voir tout le parcours","Pointillés : liaison approximative entre les étapes. Le trajet par les rues est indisponible."]
+};
 function MapView({ stops, features, labels, focus }) {
   const host = useRef(null);
   const [view,setView] = useState(null);
@@ -48,6 +53,9 @@ function MapView({ stops, features, labels, focus }) {
         }
         map.addSource("trip-route",{type:"geojson",data:{type:"FeatureCollection",features:[]}});
         map.addLayer({id:"trip-walk",type:"line",source:"trip-route",layout:{"line-join":"round","line-cap":"round"},paint:{"line-width":5,"line-color":"#af4323"}});
+        map.setFilter("trip-walk",["!",["has","approximate"]]);
+        map.addLayer({id:"trip-approximate",type:"line",source:"trip-route",filter:["has","approximate"],
+          paint:{"line-color":"#a85430","line-width":4,"line-dasharray":[1,2]}});
         setView({map,gl});
       });
     }).catch(()=>{if(active)setFailed(true);});
@@ -56,24 +64,31 @@ function MapView({ stops, features, labels, focus }) {
   useEffect(()=>{
     if(!view) return;
     const markers=[];
-    const bounds=new view.gl.LngLatBounds();
+
     stops.forEach((s,i)=>{
       if(!s.point)return;
-      bounds.extend(s.point);
+
       const el=document.createElement("button");
       el.type="button";el.className="route-pin";el.textContent=String(i+1);el.setAttribute("aria-label",s.label);
       const marker=new view.gl.Marker({element:el}).setLngLat(s.point)
         .setPopup(new view.gl.Popup({offset:16}).setText(s.label)).addTo(view.map);
       markers.push(marker);
     });
-    if(!bounds.isEmpty()) view.map.fitBounds(bounds,{padding:52,pitch:50,maxZoom:16,duration:0});
+
     return ()=>markers.forEach(m=>m.remove());
   },[stops,view]);
   useEffect(()=>{view?.map.getSource("trip-route")?.setData({type:"FeatureCollection",features});},[view,features]);
-  useEffect(()=>{if(view && focus) view.map.easeTo({center:focus.point,zoom:16.5,pitch:60,duration:450});},[focus,view]);
+  useEffect(()=>{
+    if(!view) return;
+    if(focus) {view.map.easeTo({center:focus.point,zoom:16.5,pitch:60,duration:450});return;}
+    const bounds=new view.gl.LngLatBounds();
+    stops.forEach(stop=>{if(stop.point)bounds.extend(stop.point);});
+    features.forEach(line=>line.geometry.coordinates.forEach(point=>bounds.extend(point)));
+    if(!bounds.isEmpty()) view.map.fitBounds(bounds,{padding:48,pitch:40,maxZoom:16,duration:0});
+  },[view,focus,stops,features]);
   return <>{failed && <p role="status">{labels[11]}</p>}<div ref={host} className="route-map-canvas" hidden={failed} aria-label={labels[0]} /></>;
 }
-function DayMap({day,labels}) {
+function DayMap({day,labels,details}) {
   const [stops,setStops]=useState(day.stops);
   const [finding,setFinding]=useState(true);
   const [routing,setRouting]=useState(false);
@@ -104,8 +119,10 @@ function DayMap({day,labels}) {
   if(!stops.length)return <p>{labels[10]}</p>;
   return <>
     {stops.some(s=>s.point) && <MapView stops={stops} features={route.features} focus={focus} labels={labels}/>}
-    <p role="status">{finding ? labels[3] : routing ? labels[4] : route.failed ? labels[6] : route.features.length ? labels[5] : labels[15]}</p>
+    {focus && <button type="button" className="route-toggle" onClick={()=>setFocus(null)}>{details[2]}</button>}
+    <p role="status">{finding ? labels[3] : routing ? labels[4] : route.failed ? details[3] : route.features.length ? labels[5] : labels[15]}</p>
     <ol className="route-stops" aria-label={labels[12]}>{stops.map((s,i)=><li key={i}>
+      {stops.length>1 && (i===0 || i===stops.length-1) && <small>{details[i===0?0:1]}</small>}
       {s.point ? <button type="button" className="route-focus" onClick={()=>setFocus({point:s.point})}><FiMapPin/>{s.label}</button> : <strong>{s.label}</strong>}
       {!s.point && s.checked && <><small>{labels[7]}</small>{s.choices?.length>0 && <select aria-label={labels[8]+" · "+s.label} defaultValue="" onChange={e=>{
         const choice=s.choices[Number(e.target.value)]; if(choice)setStops(prev=>prev.map((p,k)=>k===i?{...p,point:choice.point}:p));
@@ -117,12 +134,12 @@ function DayMap({day,labels}) {
 }
 export default function TripRouteMap({trip}) {
   const labels=copy[trip.language] || copy["PT-BR"];
-  const days=useMemo(()=>itineraryDays(trip.plan),[trip.plan]);
+  const days=useMemo(()=>itineraryDays(trip.plan,trip.destination),[trip.plan,trip.destination]);
   const [open,setOpen]=useState(false),[index,setIndex]=useState(0);
   const active=days[index];
   return <section className="route-panel">
     <button type="button" className="route-toggle" aria-expanded={open} onClick={()=>setOpen(!open)}><FiLayers/>{open?labels[1]:labels[0]}</button>
     {open && <div className="route-content"><div className="route-days">{days.map((d,i)=><button type="button" key={i} aria-pressed={index===i} onClick={()=>setIndex(i)}>{labels[2]} {d.number}</button>)}</div>
-      {active?<DayMap key={index} day={active} labels={labels}/>:<p>{labels[10]}</p>}</div>}
+      {active?<DayMap key={index} day={active} labels={labels} details={routeLabels[trip.language] || routeLabels["PT-BR"]}/>:<p>{labels[10]}</p>}</div>}
   </section>;
 }

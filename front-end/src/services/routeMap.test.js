@@ -28,3 +28,16 @@ test("requests a pedestrian route only between consecutive located stops",async(
   expect(global.fetch.mock.calls[0][0]).toContain("/routed-foot/route/v1/driving/1,2;2,3?");
   expect(global.fetch).toHaveBeenCalledTimes(1);
 });
+
+test("maps the four Centro Histórico stops in prose in the original order",async()=>{
+  const plan="Dia 1 — Centro Histórico\nManhã: Visitar o Paço Imperial e a Praça XV, pontos centrais da história colonial.\nTarde: Caminhar pelo Largo da Carioca e explorar a Catedral Metropolitana, conhecida por seu design.\nNoite: Jantar no Centro com pratos típicos.\nDia 2 — Descanso";
+  const days=itineraryDays(plan,"Rio de Janeiro");
+  expect(days[0].stops.map(s=>s.label)).toEqual(["Paço Imperial","Praça XV","Largo da Carioca","Catedral Metropolitana"]);
+  const stops=await Promise.all(days[0].stops.map(s=>locate(s,new AbortController().signal)));
+  expect(stops.every(s=>s.point)).toBe(true);
+  global.fetch=jest.fn().mockRejectedValue(new Error("routing offline"));
+  const r=await walkingLines(stops,new AbortController().signal);
+  expect(r.features[0].properties.approximate).toBe(true);
+  expect(r.features[0].geometry.coordinates).toEqual(stops.map(s=>s.point));
+  expect(days[1].stops).toEqual([]);
+});

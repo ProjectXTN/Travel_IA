@@ -1,20 +1,47 @@
-const mapSearch = /\[([^\]\n]+)\]\(https:\/\/[^)\s]+\)\s*\(\[[^\]\n]+\]\((https:\/\/www\.google\.com\/maps\/search\/\?[^)\s]+)\)\)/g;
-export function itineraryDays(plan) {
-  const days = [];
+const mapSearch = /\[([^\]\n]+)\]\(https:\/\/[^)\s]+\)\s*\(\[[^\]\n]+\]\((https:\/\/www\.google\.com\/maps\/search\/\?[^)\s]+)\)\)|\[([^\]\n]+)\]\((https?:\/\/[^)\s]+)\)/g;
+const properName = /(?<![\p{L}’'-])[\p{Lu}][\p{L}\p{M}’'-]*(?:\s+(?:(?:de|da|do|dos|das|des|du|la|of|the|del|di|van|von)\s+)*[\p{Lu}][\p{L}\p{M}’'-]*)*/gu;
+const genericName = /^(?:Centro|Manhã|Tarde|Noite|Matin|Soir|Morning|Afternoon|Evening|Lunch|Dinner|Petit|Après-midi|Jantar|Almoço|Visita|Visit|Visite)$/i;
+
+function textStops(text, destination) {
+  if (!destination) return [];
+  const places = [];
+  for (const m of text.replace(/\*\*/g,"").matchAll(properName)) {
+    const label = m[0];
+    if (genericName.test(label) || same(label,destination)) continue;
+    // A single capitalized word often starts an instruction. Accept it in place context.
+    const before = m.input.slice(0,m.index);
+    if (!label.includes(" ") && !/(?:\b(?:em|no|na|ao|a|o|pela?|ou|até|in|at|to|or|à|au|le|la|les|ou|vers)\s+|[’'])$/i.test(before)) continue;
+    places.push(makeStop(label, destination));
+  }
+  return places;
+}
+function makeStop(label, destination) {
+  const query = [label,destination].filter(Boolean).join(", ");
+  return {label,destination,query,url:"https://www.google.com/maps/search/?api=1&query="+encodeURIComponent(query)};
+}
+export function itineraryDays(plan, destination="") {
+  const days=[];
   let active;
-  for (const line of plan.split(/\r?\n/)) {
-    const heading = line.replace(/^#+\s*/, "").replace(/\*\*/g, "").match(/^(?:dia|day|jour)\s+(\d+)\b/i);
-    if (heading) { active = { number: Number(heading[1]), stops: [] }; days.push(active); }
-    for (const match of line.matchAll(mapSearch)) {
-      const query = new URL(match[2]).searchParams.get("query");
-      if (!query) continue;
-      if (!active) { active = { number: 1, stops: [] }; days.push(active); }
-      if (active.stops.at(-1)?.query !== query) active.stops.push({ label: match[1], query, url: match[2] });
+  for (let line of plan.split(/\r?\n/)) {
+    line=line.trim().replace(/<a\s+[^>]*?href=["'](https?:\/\/[^"']+)["'][^>]*>([^<>]*)<\/a>/gi,"[$2]($1)");
+    const heading=line.replace(/^#+\s*/, "").replace(/\*\*/g, "").match(/^(?:dia|day|jour)\s+(\d+)\b/i);
+    if (heading) { active={number:Number(heading[1]),stops:[]}; days.push(active); continue; }
+    const found=[];
+    let end=0;
+    for(const m of line.matchAll(mapSearch)) {
+      found.push(...textStops(line.slice(end,m.index),destination));
+      const url=new URL(m[2] || m[4]);
+      const query=url.hostname==="www.google.com" ? url.searchParams.get("query") : null;
+      const label=m[1] || (query ? query.split(",")[0] : m[3]);
+      found.push(query ? {label,query,url:url.href} : makeStop(label,destination));
+      end=m.index+m[0].length;
     }
+    if(active) found.push(...textStops(line.slice(end),destination));
+    if(found.length && !active) {active={number:1,stops:[]};days.push(active);}
+    for(const stop of found) if(!same(active.stops.at(-1)?.label,stop.label)) active.stops.push(stop);
   }
   return days;
 }
-
 const fixed = new Map([
   // Wikidata Q714828, Kyoto Railway Museum coordinates, and Nishiki Market (OSM).
   ["Fushimi Inari Taisha, 68 Fukakusa Yabunouchi-cho, Fushimi-ku, Kyoto 612-0882, Japan", [135.77339,34.96719]],
@@ -23,6 +50,14 @@ const fixed = new Map([
 ]);
 const names = s => String(s || "").normalize("NFKD").replace(/\p{M}/gu,"").toLowerCase().replace(/[^\p{L}\p{N}]/gu,"");
 const same = (a,b) => Boolean(a && b && names(a) === names(b));
+const rioPoints = new Map([
+  ["pacoimperial",[-43.174712,-22.903833]],
+  ["pracaxv",[-43.173611,-22.903056]],
+  ["pracaxvdenovembro",[-43.173611,-22.903056]],
+  ["largodacarioca",[-43.178147,-22.906842]],
+  ["catedralmetropolitana",[-43.180701,-22.910828]],
+  ["catedralmetropolitanadesaosebastiao",[-43.180701,-22.910828]],
+]);
 const known = new Map();
 const routes = new Map();
 function remember(cache, key, data) {
@@ -36,6 +71,11 @@ export function positionMatches(feature, stop) {
   const countries = [p.country, p.countrycode];
   if (/^[a-z]{2}$/i.test(p.countrycode)) {
     for (const lang of ["en","fr","pt"]) countries.push(new Intl.DisplayNames([lang],{type:"region"}).of(p.countrycode.toUpperCase()));
+  }
+  if (stop.destination) {
+    const [locality, region] = stop.destination.split(",").map(v=>v.trim());
+    return same(p.name,stop.label) && [p.city,p.district,p.county].some(v=>same(v,locality)) &&
+      (!region || [...countries,p.state].some(v=>same(v,region)));
   }
   return [official,stop.label].some(n => same(n,p.name)) &&
     [p.city,p.district,p.county,p.state].some(n => same(n,city)) && countries.some(n => same(n,country));
@@ -53,6 +93,8 @@ async function json(url, signal) {
   } finally { clearTimeout(timer); signal.removeEventListener("abort",abort); }
 }
 export async function locate(stop, signal) {
+  const parts=stop.query.split(",").map(names);
+  if (parts.slice(1).includes("riodejaneiro") && rioPoints.has(names(stop.label))) return {point:rioPoints.get(names(stop.label))};
   if (fixed.has(stop.query)) return {point:fixed.get(stop.query)};
   if (known.has(stop.query)) return known.get(stop.query);
   const data = await json("https://photon.komoot.io/api/?limit=5&q="+encodeURIComponent(stop.query),signal);
@@ -87,7 +129,9 @@ export async function walkingLines(stops, signal) {
         const line = response.routes?.[0]?.geometry;
         if (response.code!=="Ok" || line?.type!=="LineString" || line.coordinates.length<2) throw new Error("No route");
         remember(routes,coords,{type:"Feature",geometry:line,properties:{}});
-      } catch (error) { if (signal.aborted) throw error; failed=true; continue; }
+      } catch (error) { if (signal.aborted) throw error; failed=true;
+        features.push({type:"Feature",geometry:{type:"LineString",coordinates:points},properties:{approximate:true}});
+        continue; }
     }
     features.push(routes.get(coords));
   }
