@@ -1,3 +1,4 @@
+import TripRouteMap from "./TripRouteMap";
 import { useState } from "react";
 import { FiDownload, FiMapPin } from "react-icons/fi";
 
@@ -38,6 +39,7 @@ export default function Itinerary({ trip, t, error, sectionRef }) {
   }
   return (
     <section ref={sectionRef} tabIndex="-1" className="result card">
+      {trip.complete && <TripRouteMap key={trip.id} trip={trip} />}
       <div id="trip-plan">
         <span className="kicker"><FiMapPin />{t.result}</span>
         <h2>{trip.destination} <small>· {trip.days} {trip.days === 1 ? t.day : t.days}</small></h2>

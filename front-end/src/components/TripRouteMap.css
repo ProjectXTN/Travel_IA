@@ -1,0 +1,14 @@
+.route-panel { margin: 0 0 22px; }
+.route-toggle { display:inline-flex; align-items:center; gap:9px; padding:11px 16px; color:#194c39; background:#eef4e9; border:1px solid #aec5ae; border-radius:10px; font-weight:650; }
+.route-content { padding:16px; margin-top:10px; border:1px solid var(--line); border-radius:14px; background:#f8faf4; }
+.route-days { display:flex; gap:8px; flex-wrap:wrap; margin-bottom:12px; }
+.route-days button { border:1px solid #b5c7b7; border-radius:20px; padding:6px 12px; background:white; }
+.route-days [aria-pressed=true] { color:white; background:#174c3c; }
+.route-map-canvas { height:clamp(280px,48vh,520px); width:100%; border-radius:10px; overflow:hidden; background:#e1e8dc; position:relative; }
+.route-pin { border-radius:50%; border:2px solid white; background:#19513e; color:white; font-weight:bold; width:30px; height:30px; box-shadow:0 1px 5px #0006; }
+.route-content p { font-size:14px; margin:12px 0; }
+.route-stops { padding-left:28px; }.route-stops li { padding:5px; overflow-wrap:anywhere; }
+.route-focus { display:inline-flex; align-items:center; gap:4px; color:var(--green); font-weight:650; padding:4px 0; text-align:left; }
+.route-stops small { margin:0 8px; }.route-stops select { display:block; max-width:100%; }
+.route-content a { text-decoration:underline; }.route-stops a { margin-left:10px; font-size:12px; }
+.route-content > small { color:var(--muted); font-size:11px; }
