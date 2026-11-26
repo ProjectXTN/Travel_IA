@@ -108,7 +108,7 @@ export async function locate(stop, signal) {
 }
 
 let nextRequest = 0;
-export async function walkingLines(stops, signal) {
+export async function walkingLines(stops, signal, mode="walk") {
   const runs = [];
   let run = [];
   for (const stop of [...stops,{}]) {
@@ -119,24 +119,24 @@ export async function walkingLines(stops, signal) {
   let failed = false;
   for (const points of runs) {
     const coords = points.map(p=>p.join(",")).join(";");
-    if (!routes.has(coords)) {
+    if (!routes.has(mode+coords)) {
       await routingSlot(signal);
       try {
-        const response = await json("https://routing.openstreetmap.de/routed-foot/route/v1/driving/"+coords+
+        const response = await json("https://routing.openstreetmap.de/routed-"+(mode==="car"?"car":"foot")+"/route/v1/driving/"+coords+
           "?overview=full&geometries=geojson&steps=false&radiuses="+points.map(()=>"200").join(";"),signal);
         const line = response.routes?.[0]?.geometry;
         if (response.code!=="Ok" || line?.type!=="LineString" || line.coordinates.length<2) throw new Error("No route");
-        remember(routes,coords,{type:"Feature",geometry:line,properties:{}});
+        remember(routes,mode+coords,{type:"Feature",geometry:line,properties:{}});
       } catch (error) { if (signal.aborted) throw error; failed=true;
         features.push({type:"Feature",geometry:{type:"LineString",coordinates:points},properties:{approximate:true}});
         continue; }
     }
-    features.push(routes.get(coords));
+    features.push(routes.get(mode+coords));
   }
   return {features,failed};
 }
 
-function distanceKm(a,b) {
+export function distanceKm(a,b) {
   const radians=Math.PI/180;
   const lat=(b[1]-a[1])*radians;
   const lon=(b[0]-a[0])*radians;
@@ -185,7 +185,7 @@ function improveOrder(matrix) {
   return order;
 }
 
-export async function visitOrder(stops,signal) {
+export async function visitOrder(stops,signal,mode="walk") {
   const ordered=stops.slice();
   let approximate=false;
   for(let start=0;start<stops.length;) {
@@ -195,16 +195,16 @@ export async function visitOrder(stops,signal) {
     const run=stops.slice(start,end);
     if(run.length>=3 && run.length<=32) {
       const coords=run.map(s=>s.point.join(",")).join(";");
-      let matrix=matrices.get(coords);
+      let matrix=matrices.get(mode+coords);
       if(!matrix) {
         try {
           await routingSlot(signal);
-          const result=await json("https://routing.openstreetmap.de/routed-foot/table/v1/driving/"+coords+
+          const result=await json("https://routing.openstreetmap.de/routed-"+(mode==="car"?"car":"foot")+"/table/v1/driving/"+coords+
             "?annotations=duration&radiuses="+run.map(()=>"200").join(";"),signal);
           if(result.code!=="Ok" || result.durations?.length!==run.length ||
             !result.durations.every(row=>row?.length===run.length && row.every(v=>Number.isFinite(v) && v>=0))) throw new Error("Incomplete matrix");
           matrix=result.durations;
-          remember(matrices,coords,matrix);
+          remember(matrices,mode+coords,matrix);
         } catch(error) {
           if(signal.aborted) throw error;
           approximate=true;
